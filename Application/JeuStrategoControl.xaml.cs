@@ -320,20 +320,7 @@ namespace Stratego
 
       private Label CreerAffichagePiece(Piece pieceAffichage)
       {
-         Label labelAffichage = new Label();
-
-         if (pieceAffichage is Bombe)
-         {
-            labelAffichage.Content = "B";
-         }
-         else if (pieceAffichage is Drapeau)
-         {
-            labelAffichage.Content = "D";
-         }
-         else
-         {
-            labelAffichage.Content = pieceAffichage.Force;
-         }
+         Label labelAffichage = new Label { Content = pieceAffichage.ToString() };
 
          labelAffichage.FontSize = TAILLE_CASES_GRILLE * 0.6;
          labelAffichage.FontWeight = FontWeights.Bold;

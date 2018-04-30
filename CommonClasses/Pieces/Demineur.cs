@@ -1,9 +1,21 @@
 ﻿namespace Stratego.Common.Pieces
 {
-   public class Demineur : Piece
+   public class Demineur : GeneralPiece
    {
-      public Demineur(Color couleurPiece) : base(couleurPiece, 3)
+      /// <inheritdoc />
+      protected override int Force { get { return 3; } }
+
+      /// <inheritdoc />
+      public Demineur(Color couleurPiece) : base(couleurPiece) { }
+
+      #region IOffensivePiece
+
+      /// <inheritdoc />
+      public override AttackResult ResolveAttack(Piece defender)
       {
+         return defender is Bombe ? AttackResult.Win : ResolveAttack_(defender);
       }
+
+      #endregion
    }
 }

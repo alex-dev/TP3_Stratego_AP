@@ -1,9 +1,21 @@
 ﻿namespace Stratego.Common.Pieces
 {
-   public class Espion : Piece
+   public class Espion : GeneralPiece
    {
-      public Espion(Color couleurPiece) : base(couleurPiece, 1)
-      {                       
+      /// <inheritdoc />
+      protected override int Force { get { return 1; } }
+
+      /// <inheritdoc />
+      public Espion(Color couleurPiece) : base(couleurPiece) { }
+
+      #region IOffensivePiece
+
+      /// <inheritdoc />
+      public override AttackResult ResolveAttack(Piece defender)
+      {
+         return defender is Marechal ? AttackResult.Win : base.ResolveAttack(defender);
       }
+
+      #endregion
    }
 }

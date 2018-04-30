@@ -1,9 +1,11 @@
 ﻿namespace Stratego.Common.Pieces
 {
-   public class Sergent : Piece
+   public class Sergent : GeneralPiece
    {
-      public Sergent(Color couleurPiece) : base(couleurPiece, 4)
-      {
-      }
+      /// <inheritdoc />
+      protected override int Force { get { return 4; } }
+
+      /// <inheritdoc />
+      public Sergent(Color couleurPiece) : base(couleurPiece) { }
    }
 }

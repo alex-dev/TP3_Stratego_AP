@@ -10,6 +10,6 @@
       ///   <see cref="AttackResult.Lost"/> si <paramref name="defender"/> est plus fort.
       ///   <see cref="AttackResult.Equal"/> si <paramref name="defender"/> est aussi fort.
       /// </returns>
-      AttackResult GetAttackResult(Piece defender);
+      AttackResult ResolveAttack(Piece defender);
    }
 }

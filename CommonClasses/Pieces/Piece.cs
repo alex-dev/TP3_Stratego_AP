@@ -20,7 +20,7 @@
       #region Constructors
 
       /// <param name="couleurPiece">La <see cref="Color"/> de la <see cref="Piece"/>.</param>
-      public Piece(Color couleurPiece)
+      protected Piece(Color couleurPiece)
       {
          Couleur = couleurPiece;
       }

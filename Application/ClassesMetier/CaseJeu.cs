@@ -1,92 +1,129 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Stratego.Common;
 using Stratego.Common.Pieces;
+using Stratego.Common.Moves;
 
 namespace Stratego
 {
-   public class CaseJeu
+   public class CaseJeu : IGamePosition
    {
-      public CaseJeu VoisinAvant { get; set; }
-      public CaseJeu VoisinArriere { get; set; }
-      public CaseJeu VoisinGauche { get; set; }
-      public CaseJeu VoisinDroite { get; set; }
+      public const string TERRAIN = "Terrain";
+      public const string LAC = "Lac";
 
+      #region Attributes
+
+      /// <summary>La <see cref="Piece"/> occupant la case.</summary>
       public Piece Occupant { get; set; }
 
+      /// <summary>Le type de la case, soit "Terrain", soit "Lac".</summary>
       public string TypeCase { get; set; }
 
+      #endregion
+
+      #region Constructors
+
+      /// <param name="type">Le type de la case, soit "Terrain", soit "Lac".</param>
+      /// <remarks>L'instance n'est pas viable tant que les voisins ne sont pas liés.</remarks>
       public CaseJeu(string type)
       {
          TypeCase = type;
       }
 
+      #endregion
+
+      #region Methods
+
+      /// <summary>Résout l'attque.</summary>
+      /// <param name="attaquant">La <see cref="Piece"/> attaquante.</param>
+      /// <returns>Toutes les pièces <see cref="Piece"/> éliminées.</returns>
+      /// <exception cref="GameException">Lancée si l'attaquant n'implémente pas <see cref="IOffensivePiece"/> et tente d'attaquer une <see cref="CaseJeu"/> occupée.</exception>
+      public List<Piece> ResoudreAttaque(Piece attaquant)
+      {
+         var removed = new List<Piece> { };
+
+         if (Occupant == null)
+         {
+            Occupant = attaquant;
+         }
+         else
+         {
+            if (!(attaquant is IOffensivePiece attaquant_))
+            {
+               throw new GameException("Attaquant couldn't attack.");
+            }
+            else
+            {
+               switch (attaquant_.ResolveAttack(Occupant))
+               {
+                  case AttackResult.Win:
+                     removed.Add(Occupant);
+                     Occupant = attaquant;
+                     break;
+                  case AttackResult.Equal:
+                     removed.Add(attaquant);
+                     removed.Add(Occupant);
+                     Occupant = null;
+                     break;
+                  case AttackResult.Lost:
+                     removed.Add(attaquant);
+                     break;
+               }
+            }
+         }
+
+         return removed;
+      }
+
+      #endregion
+
+      #region IGamePosition
+
+      #region Attributes
+
+      /// <inheritdoc />
+      public IGamePosition VoisinAvant { get; set; }
+
+      /// <inheritdoc />
+      public IGamePosition VoisinArriere { get; set; }
+
+      /// <inheritdoc />
+      public IGamePosition VoisinGauche { get; set; }
+
+      /// <inheritdoc />
+      public IGamePosition VoisinDroite { get; set; }
+
+      #endregion
+
+      #region Methods
+
+      /// <inheritdoc />
+      public bool IsTraversable(Piece.Color color)
+      {
+         return TypeCase == TERRAIN && !(Occupant?.IsColor(color) ?? false);
+      }
+
+      /// <inheritdoc />
       public bool EstOccupe()
       {
          return (Occupant != null);
       }
 
-      public List<Piece> ResoudreAttaque(Piece attaquant)
+      /// <inheritdoc />
+      public bool EstVoisineDe(IGamePosition caseCible)
       {
-         List<Piece> piecesEliminees = new List<Piece>();
-
-         if (Occupant != null)
-         {
-            if (attaquant.Force < Occupant.Force)
-            {
-               piecesEliminees.Add(attaquant);
-            }
-            else if (attaquant.Force > Occupant.Force)
-            {
-               piecesEliminees.Add(Occupant);
-               Occupant = attaquant;
-            }
-            else
-            {
-               piecesEliminees.Add(attaquant);
-               piecesEliminees.Add(Occupant);
-               Occupant = null;
-            }
-         }
-         else
-         { 
-            Occupant = attaquant;
-         }
-
-         return piecesEliminees;
+         return caseCible != null
+            && (VoisinGauche == caseCible || VoisinAvant == caseCible
+               || VoisinDroite == caseCible || VoisinArriere == caseCible);
       }
 
-      public bool EstVoisineDe(CaseJeu caseCible)
+      /// <inheritdoc />
+      public bool EstDeplacementLegal(IGamePosition caseCible)
       {
-         if ( caseCible != null
-            && (this.VoisinGauche == caseCible || this.VoisinAvant == caseCible
-               || this.VoisinDroite == caseCible || this.VoisinArriere == caseCible)
-            )
-         {
-            return true;
-         }
-         else
-         {
-            return false;
-         }
+         return (Occupant as IMobilePiece)?.CanMoveTo(caseCible) ?? false;
       }
 
-      public bool EstDeplacementLegal(CaseJeu caseCible)
-      {
-         bool resultat = false;
+      #endregion
 
-         if (this.EstVoisineDe(caseCible))
-         {
-            if (!caseCible.EstOccupe()
-               || this.Occupant.Couleur != caseCible.Occupant.Couleur)
-            {
-               resultat = true;
-            }
-         }
-
-         return resultat;
-      }
+      #endregion
    }
 }

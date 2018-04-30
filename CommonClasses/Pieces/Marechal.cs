@@ -1,9 +1,11 @@
 ﻿namespace Stratego.Common.Pieces
 {
-   public class Marechal : Piece
+   public class Marechal : GeneralPiece
    {
-      public Marechal(Color couleurPiece) : base(couleurPiece, 10)
-      {
-      } 
+      /// <inheritdoc />
+      protected override int Force { get { return 10; } }
+
+      /// <inheritdoc />
+      public Marechal(Color couleurPiece) : base(couleurPiece) { }
    }
 }

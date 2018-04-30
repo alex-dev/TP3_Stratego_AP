@@ -7,8 +7,7 @@ namespace Stratego.Common.Pieces
    public interface IMobilePiece
    {
       /// <summary>Trouve tous les déplacements que la pièce peut entreprendre.</summary>
-      /// <returns><see cref="IEnumerable{IGamePosition}"/> contenant les cases où <see cref="IMobilePiece"/> peut se déplacer.</returns>
-      IEnumerable<IGamePosition> GetPossibleMoves();
+      IEnumerable<IGamePosition> PossibleMoves { get; }
 
       /// <summary>Valide si la pièce peut se déplacer jusqu'à <paramref name="position"/>.</summary>
       /// <param name="position">La <see cref="IGamePosition"/> cible.</param>

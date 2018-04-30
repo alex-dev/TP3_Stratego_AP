@@ -1,4 +1,6 @@
-﻿namespace Stratego.Common.Moves
+﻿using Stratego.Common.Pieces;
+
+namespace Stratego.Common.Moves
 {
    /// <summary>Interface représentant les actions que tout le monde peut faire avec une case de jeu.</summary>
    public interface IGamePosition
@@ -23,6 +25,9 @@
       #endregion
 
       #region Methods
+
+      /// <summary>Détermine si <see cref="IGamePosition"/> est traversable par des <see cref="Piece"/> de couleur <paramref name="color"/>.</summary>
+      bool IsTraversable(Piece.Color color);
 
       /// <summary>Détermine si <see cref="IGamePosition"/> est occupé.</summary>
       bool EstOccupe();

@@ -2,12 +2,8 @@
 {
    public class Drapeau : Piece
    {
-      #region Constructors
-
       /// <inheritdoc />
       public Drapeau(Color couleurPiece) : base(couleurPiece) { }
-
-      #endregion
 
       #region String Representation
 
