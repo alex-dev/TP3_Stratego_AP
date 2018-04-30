@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Stratego.Common.Moves;
+using Stratego.Common.GameLogic;
 
 namespace Stratego.Common.Pieces
 {
@@ -8,8 +8,6 @@ namespace Stratego.Common.Pieces
    public abstract class GeneralPiece : Piece, IOffensivePiece, IMobilePiece
    {
       #region Attributes
-
-      public IGamePosition Position { get; set; }
 
       /// <summary>La force de la <see cref="GeneralPiece"/>.</summary>
       protected abstract int Force { get; }
@@ -65,6 +63,9 @@ namespace Stratego.Common.Pieces
       #endregion
 
       #region IMobilePiece
+
+      /// <inheritdoc />
+      public IGamePosition Position { get; set; }
 
       /// <inheritdoc />
       public virtual IEnumerable<IGamePosition> PossibleMoves

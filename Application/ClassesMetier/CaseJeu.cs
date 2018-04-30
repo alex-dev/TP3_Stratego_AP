@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Stratego.Common;
 using Stratego.Common.Pieces;
-using Stratego.Common.Moves;
+using Stratego.Common.GameLogic;
 
 namespace Stratego
 {
@@ -10,10 +10,23 @@ namespace Stratego
       public const string TERRAIN = "Terrain";
       public const string LAC = "Lac";
 
+      private Piece occupant;
+
       #region Attributes
 
       /// <summary>La <see cref="Piece"/> occupant la case.</summary>
-      public Piece Occupant { get; set; }
+      public Piece Occupant
+      {
+         get { return occupant; }
+         set {
+            if (value is IMobilePiece val)
+            {
+               val.Position = this;
+            }
+
+            occupant = value;
+         }
+      }
 
       /// <summary>Le type de la case, soit "Terrain", soit "Lac".</summary>
       public string TypeCase { get; set; }
@@ -41,34 +54,32 @@ namespace Stratego
       {
          var removed = new List<Piece> { };
 
-         if (Occupant == null)
+         if (!(attaquant is IOffensivePiece attaquant_))
          {
-            Occupant = attaquant;
+            throw new GameException("Attaquant couldn't attack.");
          }
          else
          {
-            if (!(attaquant is IOffensivePiece attaquant_))
+            switch (attaquant_.ResolveAttack(Occupant))
             {
-               throw new GameException("Attaquant couldn't attack.");
+               case AttackResult.Win:
+                  removed.Add(Occupant);
+                  Occupant = attaquant;
+                  break;
+               case AttackResult.Equal:
+                  removed.Add(attaquant);
+                  removed.Add(Occupant);
+                  Occupant = null;
+                  break;
+               case AttackResult.Lost:
+                  removed.Add(attaquant);
+                  break;
             }
-            else
-            {
-               switch (attaquant_.ResolveAttack(Occupant))
-               {
-                  case AttackResult.Win:
-                     removed.Add(Occupant);
-                     Occupant = attaquant;
-                     break;
-                  case AttackResult.Equal:
-                     removed.Add(attaquant);
-                     removed.Add(Occupant);
-                     Occupant = null;
-                     break;
-                  case AttackResult.Lost:
-                     removed.Add(attaquant);
-                     break;
-               }
-            }
+         }
+
+         foreach (IMobilePiece piece in removed.FindAll(piece => piece is IMobilePiece))
+         {
+            piece.Position = null;
          }
 
          return removed;

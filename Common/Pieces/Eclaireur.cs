@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Stratego.Common.Moves;
+using Stratego.Common.GameLogic;
 
 namespace Stratego.Common.Pieces
 {
@@ -21,46 +21,51 @@ namespace Stratego.Common.Pieces
       /// <returns>Un <see cref="IEnumerable{IGamePosition}"/> contenant toutes les cases de <paramref name="initial"/> jusqu'à la dernière accessible inclusivement.</returns>
       private IEnumerable<IGamePosition> GetWholeRow(Func<IGamePosition, IGamePosition> next, IGamePosition initial)
       {
-         while (CheckIsPossibleMove(initial))
+         while (CheckIsPossibleMove(initial) && !initial.EstOccupe())
          {
             yield return initial;
             initial = next(initial);
          }
+
+         if (CheckIsPossibleMove(initial))
+         {
+            yield return initial;
+         }
       }
 
-         #region IGamePosition Access Methods
-         private static IGamePosition GetBack(IGamePosition position)
-         {
-            return position.VoisinArriere;
-         }
+      #region IGamePosition Access Methods
+      private static IGamePosition GetBack(IGamePosition position)
+      {
+         return position.VoisinArriere;
+      }
 
-         private static IGamePosition GetFront(IGamePosition position)
-         {
-            return position.VoisinAvant;
-         }
+      private static IGamePosition GetFront(IGamePosition position)
+      {
+         return position.VoisinAvant;
+      }
 
-         private static IGamePosition GetLeft(IGamePosition position)
-         {
-            return position.VoisinGauche;
-         }
+      private static IGamePosition GetLeft(IGamePosition position)
+      {
+         return position.VoisinGauche;
+      }
 
-         private static IGamePosition GetRight(IGamePosition position)
-         {
-            return position.VoisinDroite;
-         }
-         #endregion
+      private static IGamePosition GetRight(IGamePosition position)
+      {
+         return position.VoisinDroite;
+      }
+      #endregion
 
       #endregion
 
       #region IMobilePiece
 
       /// <inheritdoc />
-      public virtual IEnumerable<IGamePosition> PossiblePositions
+      public override IEnumerable<IGamePosition> PossibleMoves
       {
          get
          {
             return GetWholeRow(GetBack, Position.VoisinArriere)
-               .Union(GetWholeRow(GetFront, Position.VoisinAvant)
+               .Union(GetWholeRow(GetFront, Position.VoisinAvant))
                .Union(GetWholeRow(GetLeft, Position.VoisinGauche))
                .Union(GetWholeRow(GetRight, Position.VoisinDroite));
          }

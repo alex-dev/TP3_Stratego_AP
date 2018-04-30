@@ -111,7 +111,7 @@
       <Project>{7494093c-c775-48b0-8277-98ebca7c555a}</Project>
       <Name>AI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CommonClasses\Common.csproj">
+    <ProjectReference Include="..\Common\Common.csproj">
       <Project>{84a8435c-1eca-4ca7-aaa1-cca0121f4402}</Project>
       <Name>Common</Name>
     </ProjectReference>

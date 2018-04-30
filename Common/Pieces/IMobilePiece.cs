@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
-using Stratego.Common.Moves;
+using Stratego.Common.GameLogic;
 
 namespace Stratego.Common.Pieces
 {
    /// <summary>Interface décrivant les actions qu'une pièce mobile peut entreprendre.</summary>
    public interface IMobilePiece
    {
+      /// <summary>Référence vers la position courante.</summary>
+      IGamePosition Position { get; set; }
+
       /// <summary>Trouve tous les déplacements que la pièce peut entreprendre.</summary>
       IEnumerable<IGamePosition> PossibleMoves { get; }
 

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using Stratego.Common;
+using Stratego.Common.GameLogic;
 using Stratego.Common.Pieces;
 
 namespace Stratego
 {
-   public class GrilleJeu
+   public class GrilleJeu : IGameGrid
    {
       #region Static
 
@@ -17,10 +18,16 @@ namespace Stratego
 
       private List<List<CaseJeu>> GrilleCases { get; set; }
 
+      #region Constructors
+
       public GrilleJeu()
       {
          InitialiserGrille();
+         // Créer les liens de voisinage entre les cases de la grille.
+         LierCasesGrille();
       }
+
+      #region Initializers
 
       private void InitialiserGrille()
       {
@@ -37,19 +44,16 @@ namespace Stratego
                // Coordonnées des lacs : I (2, 3, 6, 7) - J (4, 5)
                if ((i == 2 || i == 3 || i == 6 || i == 7) && (j == 4 || j == 5))
                {
-                  colonne.Add(new CaseJeu("Lac"));
+                  colonne.Add(new CaseJeu(CaseJeu.LAC));
                }
                else
                {
-                  colonne.Add(new CaseJeu("Terrain"));
+                  colonne.Add(new CaseJeu(CaseJeu.TERRAIN));
                }
             }
 
             GrilleCases.Add(colonne);
          }
-
-         // Créer les liens de voisinage entre les cases de la grille.
-         LierCasesGrille();
       }
 
       private void LierCasesGrille()
@@ -74,7 +78,7 @@ namespace Stratego
                   {
                      GrilleCases[i][j].VoisinArriere = GrilleCases[i][j + 1];
                   }
-                  else 
+                  else
                   {
                      GrilleCases[i][j].VoisinAvant = GrilleCases[i][j - 1];
                   }
@@ -111,7 +115,7 @@ namespace Stratego
                      GrilleCases[i][j].VoisinDroite = GrilleCases[i + 1][j];
                   }
                }
-               else 
+               else
                {
                   GrilleCases[i][j].VoisinGauche = GrilleCases[i - 1][j];
                   GrilleCases[i][j].VoisinAvant = GrilleCases[i][j - 1];
@@ -122,45 +126,15 @@ namespace Stratego
          }
       }
 
-      public ReponseDeplacement ResoudreDeplacement(Coordinate CoordinateDepart, Coordinate CoordinateCible)
-      {
-         ReponseDeplacement reponse = new ReponseDeplacement();
-         reponse.PiecesEliminees = new List<Piece>();
+      #endregion
 
-         CaseJeu caseDepart, caseCible;
+      #endregion
 
-         if (EstCoordonneeValide(CoordinateDepart) && EstCoordonneeValide(CoordinateCible))
-         {
-            caseDepart = GrilleCases[CoordinateDepart.X][CoordinateDepart.Y];
-            caseCible = GrilleCases[CoordinateCible.X][CoordinateCible.Y];
+      #region Methods
 
-            if (caseDepart.EstOccupe() && EstDeplacementPermis(CoordinateDepart, CoordinateCible))
-            {
-               // Faire le déplacement.
-               reponse.PiecesEliminees = caseCible.ResoudreAttaque(caseDepart.Occupant);
-               caseDepart.Occupant = null;
-
-               reponse.DeplacementFait = true;
-            }
-            else
-            {
-               reponse.DeplacementFait = false;
-            }
-         }
-         else
-         {
-            reponse.DeplacementFait = false;
-         }
-
-         return reponse;
-      }
-
-      public bool EstDeplacementPermis(Coordinate CoordinateDepart, Coordinate CoordinateCible)
-      {
-         return EstCoordonneeValide(CoordinateDepart) && EstCoordonneeValide(CoordinateCible)
-            && GrilleCases[CoordinateDepart.X][CoordinateDepart.Y].EstDeplacementLegal(GrilleCases[CoordinateCible.X][CoordinateCible.Y]);
-      }
-
+      /// <summary>Valide la <see cref="Coordinate"/> en fonction de la taille du jeu.</summary>
+      /// <param name="p">La <see cref="Coordinate"/> à valider.</param>
+      /// <remarks>Devrait être une méthode de <see cref="Coordinate"/> recevant le min max.</remarks>
       private bool EstCoordonneeValide(Coordinate p)
       {
          if ((p.X >= 0 && p.X < TAILLE_GRILLE_JEU) && (p.Y >= 0 && p.Y < TAILLE_GRILLE_JEU))
@@ -173,14 +147,10 @@ namespace Stratego
          }
       }
 
+      /// <summary>Valide que la <see cref="Coordinate"/> est une case Lac.</summary>
       public bool EstCoordonneeLac(Coordinate p)
       {
          return GrilleCases[p.X][p.Y].TypeCase == CaseJeu.LAC;
-      }
-
-      public bool EstCaseOccupee(Coordinate p)
-      {
-         return GrilleCases[p.X][p.Y].EstOccupe();
       }
 
       public bool PositionnerPieces(List<Piece> lstPieces, Piece.Color couleurJoueur)
@@ -189,7 +159,7 @@ namespace Stratego
 
          int compteur = 0;
          int decallage = 0;
-         
+
          if (couleurJoueur == Piece.Color.Red)
          {
             decallage = 6;
@@ -235,6 +205,7 @@ namespace Stratego
          return pieceTrouvee;
       }
 
+      #region Weird shit!
       public Piece ObtenirPiece(Coordinate p)
       {
          return GrilleCases[p.X][p.Y].Occupant;
@@ -244,6 +215,52 @@ namespace Stratego
       {
          return GrilleCases[p.X][p.Y].Occupant.Couleur;
       }
+      #endregion
 
+      #endregion
+
+      #region IGameGrid
+
+      /// <inheritdoc />
+      public ReponseDeplacement ResoudreDeplacement(Coordinate CoordinateDepart, Coordinate CoordinateCible)
+      {
+         ReponseDeplacement reponse;
+
+         if (EstDeplacementPermis(CoordinateDepart, CoordinateCible))
+         {
+            var caseDepart = GrilleCases[CoordinateDepart.X][CoordinateDepart.Y];
+            var caseCible = GrilleCases[CoordinateCible.X][CoordinateCible.Y];
+
+            // Faire le déplacement.
+            reponse = new ReponseDeplacement
+            {
+               PiecesEliminees = caseCible.ResoudreAttaque(caseDepart.Occupant),
+               DeplacementFait = true
+            };
+
+            caseDepart.Occupant = null;
+         }
+         else
+         {
+            reponse = new ReponseDeplacement { DeplacementFait = false };
+         }
+
+         return reponse;
+      }
+
+      /// <inheritdoc />
+      public bool EstDeplacementPermis(Coordinate CoordinateDepart, Coordinate CoordinateCible)
+      {
+         return EstCoordonneeValide(CoordinateDepart) && EstCoordonneeValide(CoordinateCible)
+            && GrilleCases[CoordinateDepart.X][CoordinateDepart.Y].EstDeplacementLegal(GrilleCases[CoordinateCible.X][CoordinateCible.Y]);
+      }
+
+      /// <inheritdoc />
+      public bool EstCaseOccupee(Coordinate p)
+      {
+         return GrilleCases[p.X][p.Y].EstOccupe();
+      }
+
+      #endregion
    }
 }

@@ -1,6 +1,6 @@
 ﻿using Stratego.Common.Pieces;
 
-namespace Stratego.Common.Moves
+namespace Stratego.Common.GameLogic
 {
    /// <summary>Interface représentant les actions que tout le monde peut faire avec une case de jeu.</summary>
    public interface IGamePosition

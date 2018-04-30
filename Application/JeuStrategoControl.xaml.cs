@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Stratego.Common;
+using Stratego.Common.GameLogic;
 using Stratego.Common.Pieces;
 
 namespace Stratego
@@ -470,5 +471,11 @@ namespace Stratego
             TourJeu = Piece.Color.Red;
          }
       }
+
+      #region IGameLogic
+
+
+
+      #endregion
    }
 }

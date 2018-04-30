@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Stratego.Common.Pieces;
 
-namespace Stratego
+namespace Stratego.Common.GameLogic
 {
    /// <summary>
    /// Cette classe est un objet de transport. C'est un artifice de programmation qui permet de passer plusieurs informations
@@ -18,12 +14,9 @@ namespace Stratego
 
       public List<Piece> PiecesEliminees { get; set; }
 
-      /// <summary>
-      /// La classe se contruit vide puis on ajoute les éléments à la pièce.
-      /// </summary>
-      public ReponseDeplacement()
+      public static implicit operator bool(ReponseDeplacement response)
       {
-         PiecesEliminees = new List<Piece>();
+         return response.DeplacementFait;
       }
    }
 }
