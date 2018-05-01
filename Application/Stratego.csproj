@@ -59,7 +59,6 @@
     <Compile Include="ClassesMetier\CaseJeu.cs" />
     <Compile Include="ClassesMetier\GrilleJeu.cs" />
     <Compile Include="ClassesMetier\IA_Stratego.cs" />
-    <Compile Include="ClassesMetier\ReponseDeplacement.cs" />
     <Page Include="JeuStrategoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

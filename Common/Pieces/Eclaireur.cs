@@ -71,6 +71,49 @@ namespace Stratego.Common.Pieces
          }
       }
 
+      /// <inheritdoc />
+      public override IEnumerable<Coordinate> GetPossibleMovesFromState(Coordinate current, HashSet<Coordinate> owned, HashSet<Coordinate> opponent)
+      {
+         Coordinate value;
+
+         if (!owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
+         {
+            yield return value;
+
+            while (!opponent.Contains(value) && !owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
+            {
+               yield return value;
+            }
+         }
+         if (!owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
+         {
+            yield return value;
+
+            while (!opponent.Contains(value) && !owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
+            {
+               yield return value;
+            }
+         }
+         if (!owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
+         {
+            yield return value;
+
+            while (!opponent.Contains(value) && !owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
+            {
+               yield return value;
+            }
+         }
+         if (!owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
+         {
+            yield return value;
+
+            while (!opponent.Contains(value) && !owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
+            {
+               yield return value;
+            }
+         }
+      }
+
       #endregion
    }
 }

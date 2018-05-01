@@ -15,6 +15,9 @@ namespace Stratego.Common.GameLogic
       /// <summary>Événement déclenché lorsque des pièces sont révélées.</summary>
       event EventHandler<PiecesShownEventArgs> PiecesShown;
 
+      /// <summary>Événement déclenché lorsqu'une pièce est déplacée.</summary>
+      event EventHandler<PieceMovedEventArgs> PieceMoved;
+
       /// <summary>Le tour de jeu en cours.</summary>
       Piece.Color TourJeu { get; }
 

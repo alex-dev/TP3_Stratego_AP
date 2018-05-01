@@ -5,7 +5,7 @@ using Stratego.Common.GameLogic;
 
 namespace Stratego
 {
-   public class CaseJeu : IGamePosition
+   public class CaseJeu : IOwnedGamePosition
    {
       public const string TERRAIN = "Terrain";
       public const string LAC = "Lac";
@@ -13,20 +13,6 @@ namespace Stratego
       private Piece occupant;
 
       #region Attributes
-
-      /// <summary>La <see cref="Piece"/> occupant la case.</summary>
-      public Piece Occupant
-      {
-         get { return occupant; }
-         set {
-            if (value is IMobilePiece val)
-            {
-               val.Position = this;
-            }
-
-            occupant = value;
-         }
-      }
 
       /// <summary>Le type de la case, soit "Terrain", soit "Lac".</summary>
       public string TypeCase { get; set; }
@@ -87,9 +73,24 @@ namespace Stratego
 
       #endregion
 
-      #region IGamePosition
+      #region IOwnedGamePosition
 
       #region Attributes
+
+      /// <inheritdoc />
+      public Piece Occupant
+      {
+         get { return occupant; }
+         set
+         {
+            if (value is IMobilePiece val)
+            {
+               val.Position = this;
+            }
+
+            occupant = value;
+         }
+      }
 
       /// <inheritdoc />
       public IGamePosition VoisinAvant { get; set; }

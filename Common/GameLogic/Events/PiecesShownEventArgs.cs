@@ -8,9 +8,12 @@ namespace Stratego.Common.GameLogic.Events
    {
       public ICollection<Piece> Pieces { get; private set; }
 
-      public PiecesShownEventArgs(ICollection<Piece> pieces) : base()
+      public AttackResult Result { get; private set; }
+
+      public PiecesShownEventArgs(ICollection<Piece> pieces, AttackResult result) : base()
       {
          Pieces = pieces;
+         Result = result;
       }
    }
 }

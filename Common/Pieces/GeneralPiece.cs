@@ -100,6 +100,29 @@ namespace Stratego.Common.Pieces
          return PossibleMoves.ToArray().Contains(position);
       }
 
+      /// <inheritdoc />
+      public virtual IEnumerable<Coordinate> GetPossibleMovesFromState(Coordinate current, HashSet<Coordinate> owned, HashSet<Coordinate> opponent)
+      {
+         Coordinate value;
+
+         if (!owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
+         {
+            yield return value;
+         }
+         if (!owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
+         {
+            yield return value;
+         }
+         if (!owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
+         {
+            yield return value;
+         }
+         if (!owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
+         {
+            yield return value;
+         }
+      }
+
       #endregion
 
       #region String Representation
