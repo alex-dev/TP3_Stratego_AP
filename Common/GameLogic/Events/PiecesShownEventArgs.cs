@@ -6,14 +6,17 @@ namespace Stratego.Common.GameLogic.Events
 {
    public class PiecesShownEventArgs : EventArgs
    {
+      public Piece.Color Attacker { get; private set; }
+
       public ICollection<Piece> Pieces { get; private set; }
 
       public AttackResult Result { get; private set; }
 
-      public PiecesShownEventArgs(ICollection<Piece> pieces, AttackResult result) : base()
+      public PiecesShownEventArgs(ICollection<Piece> pieces, AttackResult result, Piece.Color attacker) : base()
       {
          Pieces = pieces;
          Result = result;
+         Attacker = attacker;
       }
    }
 }

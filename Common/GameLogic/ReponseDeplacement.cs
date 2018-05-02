@@ -14,6 +14,8 @@ namespace Stratego.Common.GameLogic
 
       public List<Piece> PiecesEliminees { get; set; }
 
+      public AttackResult Result { get; set; }
+
       public static implicit operator bool(ReponseDeplacement response)
       {
          return response.DeplacementFait;

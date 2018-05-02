@@ -71,6 +71,18 @@ namespace Stratego.AI
          return (uint)Math.Abs(left.X - right.X) + (uint)Math.Abs(left.Y - right.Y);
       }
 
+      public double EvaluateHeuristicBoard()
+      {
+         var evaluation = EvaluateBoard();
+
+         return 0.25 * EvaluateFlag()
+            + 0.25 * evaluation.Discovery
+            + 0.25 * evaluation.Material
+            + 0.01 * evaluation.Attack
+            + 0.01 * evaluation.Unknown
+            + BombsWeight * evaluation.Bombs;
+      }
+
       private double EvaluateFlag()
       {
          var flag = AI.OfType<KeyValuePair<Coordinate, Drapeau>>().Single();
@@ -121,18 +133,6 @@ namespace Stratego.AI
             Bombs = (2000 - bombs) / 2000.0,
             Unknown = (15000 - unknown) / 15000.0
          };
-      }
-
-      public double EvaluateHeuristicBoard()
-      {
-         var evaluation = EvaluateBoard();
-
-         return 0.25 * EvaluateFlag()
-            + 0.25 * evaluation.Discovery
-            + 0.25 * evaluation.Material
-            + 0.01 * evaluation.Attack
-            + 0.01 * evaluation.Unknown
-            + BombsWeight * evaluation.Bombs;
       }
    }
 }

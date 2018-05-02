@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Stratego.Common;
 using Stratego.Common.GameLogic;
 using Stratego.Common.Pieces;
+using Stratego.AI;
 
 namespace Stratego
 {
@@ -30,14 +24,15 @@ namespace Stratego
 
       #endregion
 
-      public GrilleJeu GrillePartie { get; private set; }
+      public Piece.Color TourJeu { get { return Logic.TourJeu; } }
+      public GrilleJeu GrillePartie { get { return Logic.GrillePartie; } }
+      private GameLogic Logic { get; set; }
+      private AI.AI AI { get; set; }
 
       private List<List<Label>> GrillePieces { get; set; }
-
       private Rectangle SelectionActive { get; set; }
 
-      public Piece.Color TourJeu { get; private set; }
-
+      /*
       #region Code relié au patron observateur
 
       List<IObserver<JeuStrategoControl>> observers;
@@ -77,18 +72,21 @@ namespace Stratego
       }
       #endregion
 
-      private IA_Stratego IA { get; set; }
+      private IA_Stratego IA { get; set; }*/
 
       public JeuStrategoControl()
       {
          InitializeComponent();
 
-         GrillePartie = new GrilleJeu();
+         Logic = new GameLogic(new GrilleJeu());
 
          DiviserGrilleJeu();
          ColorerGrilleJeu();
          DefinirZoneSelectionGrille();
          InitialiserSelectionActive();
+
+         // Initialiser l'IA.
+         AI = new AI.AI();
 
          PositionnerPieces();
          InitialiserAffichagePieces();
@@ -118,14 +116,6 @@ namespace Stratego
          */
 
          #endregion
-
-         TourJeu = Piece.Color.Red;
-
-         // Initialise la liste d'observateurs.
-         observers = new List<IObserver<JeuStrategoControl>>();
-
-         // Initialiser l'IA.
-         IA = new IA_Stratego(this);
       }
 
       /// <summary>
@@ -461,7 +451,7 @@ namespace Stratego
       }
 
       public void ChangerTourJeu()
-      { 
+      {
          if (TourJeu == Piece.Color.Red)
          {
             TourJeu = Piece.Color.Blue;
@@ -471,11 +461,5 @@ namespace Stratego
             TourJeu = Piece.Color.Red;
          }
       }
-
-      #region IGameLogic
-
-
-
-      #endregion
    }
 }

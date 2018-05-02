@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Stratego.Common.GameLogic;
 using Stratego.Common.Pieces;
 
 namespace Stratego.AI

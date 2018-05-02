@@ -6,15 +6,15 @@ namespace Stratego.Common.GameLogic.Events
 {
    public class PieceMovedEventArgs : EventArgs
    {
-      public Piece Piece { get; private set; }
+      public Piece.Color Player { get; private set; }
       public Coordinate Start { get; private set; }
       public Coordinate End { get; private set; }
 
-      public PieceMovedEventArgs(Piece piece, Coordinate start, Coordinate end) : base()
+      public PieceMovedEventArgs(Coordinate start, Coordinate end, Piece.Color player) : base()
       {
-         Piece = piece;
          Start = start;
          End = end;
+         Player = player;
       }
    }
 }
