@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -8,8 +7,8 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using Stratego.Common;
 using Stratego.Common.GameLogic;
+using Stratego.Common.GameLogic.Events;
 using Stratego.Common.Pieces;
-using Stratego.AI;
 
 namespace Stratego
 {
@@ -86,7 +85,7 @@ namespace Stratego
          InitialiserSelectionActive();
 
          // Initialiser l'IA.
-         AI = new AI.AI();
+         AI = new AI.AI(Logic);
 
          PositionnerPieces();
          InitialiserAffichagePieces();
@@ -118,14 +117,9 @@ namespace Stratego
          #endregion
       }
 
-      /// <summary>
-      /// Cette méthode existe principalement pour que le jeu soit testable.
-      /// On ne veut évidemment pas toujours commencer une partie avec exactement les même positions.
-      /// </summary>
       private void PositionnerPieces()
       {
          const Piece.Color red = Piece.Color.Red;
-         const Piece.Color blue = Piece.Color.Blue;
 
          List<Piece> piecesRouges = new List<Piece>() { new Marechal(red), new Capitaine(red), new Lieutenant(red), new Demineur(red), new Eclaireur(red), new Capitaine(red), new Eclaireur(red), new Eclaireur(red), new Eclaireur(red), new Capitaine(red)
                                                 , new Sergent(red), new Eclaireur(red), new Colonel(red), new Colonel(red), new General(red), new Eclaireur(red), new Sergent(red), new Bombe(red), new Bombe(red), new Lieutenant(red)
@@ -133,14 +127,16 @@ namespace Stratego
                                                 , new Commandant(red), new Demineur(red), new Demineur(red), new Demineur(red), new Sergent(red), new Bombe(red), new Drapeau(red), new Bombe(red), new Bombe(red), new Demineur(red)
                                                 };
 
-         List<Piece> piecesBleues = new List<Piece>() { new Commandant(blue), new Lieutenant(blue), new Demineur(blue), new Demineur(blue), new Demineur(blue), new Capitaine(blue), new Bombe(blue), new Sergent(blue), new Bombe(blue), new Drapeau(blue)
-                                                , new Capitaine(blue), new Eclaireur(blue), new Capitaine(blue), new Sergent(blue), new Lieutenant(blue), new Eclaireur(blue), new Eclaireur(blue), new Bombe(blue), new Sergent(blue), new Bombe(blue)
-                                                , new Eclaireur(blue), new Commandant(blue), new Eclaireur(blue), new Eclaireur(blue), new Marechal(blue), new Commandant(blue), new Capitaine(blue), new Demineur(blue), new Bombe(blue), new Sergent(blue)
-                                                , new Lieutenant(blue), new Eclaireur(blue), new Colonel(blue), new Demineur(blue), new Lieutenant(blue), new Eclaireur(blue), new Colonel(blue), new Espion(blue), new General(blue), new Bombe(blue)
-                                                };
-
          GrillePartie.PositionnerPieces(piecesRouges, red);
-         GrillePartie.PositionnerPieces(piecesBleues, blue);
+
+         AI.PlaceOpponentPieces(Enumerable.Range(0, GrilleJeu.TAILLE_GRILLE_JEU)
+            .SelectMany(i => from j in Enumerable.Range(
+                                GrilleJeu.TAILLE_GRILLE_JEU - 1 - 40 / GrilleJeu.TAILLE_GRILLE_JEU,
+                                40 / GrilleJeu.TAILLE_GRILLE_JEU)
+                             select new Coordinate(i, j)));
+
+         GrillePartie.PositionnerPieces((from coord in AI.PlaceAIPieces().OrderBy(p => p.Key.X * 100 + p.Key.Y)
+                                         select coord.Value).ToList(), Piece.Color.Blue);
       }
 
       private void DiviserGrilleJeu()
@@ -378,19 +374,12 @@ namespace Stratego
 
       public ReponseDeplacement ExecuterCoup(Coordinate caseDepart, Coordinate caseCible)
       {
-         Thread executionIA = new Thread(LancerIA);
-
-         ReponseDeplacement reponse = new ReponseDeplacement();
-
-         Piece attaquant;
-         Label affichageAttaquant;
+         ReponseDeplacement reponse;
 
          if (caseCible != caseDepart)
          {
-            // Prendre les informations avant de faire le coup.
-            attaquant = GrillePartie.ObtenirPiece(caseDepart);
-            affichageAttaquant = GrillePieces[(int)caseDepart.X][(int)caseDepart.Y];
-            reponse = GrillePartie.ResoudreDeplacement(caseDepart, caseCible);
+            Label affichageAttaquant = GrillePieces[(int)caseDepart.X][(int)caseDepart.Y];
+            reponse = Logic.ExecuterCoup(caseDepart, caseCible);
 
             if (reponse.DeplacementFait)
             {
@@ -405,8 +394,7 @@ namespace Stratego
                   grdPartie.Children.Remove(GrillePieces[(int)caseCible.X][(int)caseCible.Y]);
                   GrillePieces[(int)caseCible.X][(int)caseCible.Y] = null;
                }
-               else if (reponse.PiecesEliminees.Count == 1 && reponse.PiecesEliminees[0] != attaquant
-                       || reponse.PiecesEliminees.Count == 0)
+               else if (reponse.Result is null || reponse.Result == AttackResult.Win)
                {
                   // Remplacement de la pièce attaquée par la pièce attaquante.
                   grdPartie.Children.Remove(GrillePieces[(int)caseCible.X][(int)caseCible.Y]);
@@ -418,48 +406,19 @@ namespace Stratego
                   Grid.SetRow(affichageAttaquant, (int)caseCible.Y);
                   grdPartie.Children.Add(affichageAttaquant);
                }
-
-               // Permet de faire jouer l'IA.
-               if (TourJeu == Piece.Color.Red)
-               {
-                  ChangerTourJeu();
-                  executionIA.Start();
-               }
-               else
-               {
-                  ChangerTourJeu();
-               }
             }
          }
          else
          {
-            reponse.DeplacementFait = false;
+            reponse = new ReponseDeplacement { DeplacementFait = true };
          }
 
          return reponse;
       }
 
-      private void LancerIA()
+      private void LaunchAI(object sender, TurnChangeEventArgs e)
       {
-         // Pause d'une seconde, pour permettre à l'humain de mieux comprendre le déroulement.
-         Thread.Sleep(1000);
 
-         Dispatcher.Invoke(() =>
-         {
-            Notify();
-         });
-      }
-
-      public void ChangerTourJeu()
-      {
-         if (TourJeu == Piece.Color.Red)
-         {
-            TourJeu = Piece.Color.Blue;
-         }
-         else
-         {
-            TourJeu = Piece.Color.Red;
-         }
       }
    }
 }

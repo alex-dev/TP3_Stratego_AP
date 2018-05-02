@@ -42,12 +42,10 @@ namespace Stratego
 
          if (caseCible != caseDepart && (reponse = GrillePartie.ResoudreDeplacement(caseDepart, caseCible)))
          {
-            PieceMoved.Invoke(this, new PieceMovedEventArgs(caseDepart, caseCible, TourJeu));
+            var shown = reponse.Result is null ? null : new PiecesShownEventArgs(
+               reponse.PiecesEliminees, reponse.PieceSurvivante, (AttackResult)reponse.Result, TourJeu);
 
-            if (reponse.PiecesEliminees.Count > 0)
-            {
-               PiecesShown.Invoke(this, new PiecesShownEventArgs(reponse.PiecesEliminees, reponse.Result, TourJeu));
-            }
+            PieceMoved.Invoke(this, new PieceMovedEventArgs(caseDepart, caseCible, TourJeu, shown));
 
             if (reponse.PiecesEliminees.OfType<Drapeau>().Count() == 0)
             {

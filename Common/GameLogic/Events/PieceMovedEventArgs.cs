@@ -9,8 +9,9 @@ namespace Stratego.Common.GameLogic.Events
       public Piece.Color Player { get; private set; }
       public Coordinate Start { get; private set; }
       public Coordinate End { get; private set; }
+      public PiecesShownEventArgs Shown { get; private set; }
 
-      public PieceMovedEventArgs(Coordinate start, Coordinate end, Piece.Color player) : base()
+      public PieceMovedEventArgs(Coordinate start, Coordinate end, Piece.Color player, PiecesShownEventArgs shown) : base()
       {
          Start = start;
          End = end;

@@ -102,7 +102,7 @@ namespace Stratego.AI
          foreach (var piece in AI)
          {
             material += MaterialValue[piece.Value.GetType()];
-            attack += (uint)(9 - piece.Key.Y);
+            attack += (uint)piece.Key.Y;
          }
 
          foreach (var piece in Opponent)

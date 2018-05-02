@@ -8,13 +8,16 @@ namespace Stratego.Common.GameLogic.Events
    {
       public Piece.Color Attacker { get; private set; }
 
-      public ICollection<Piece> Pieces { get; private set; }
+      public ICollection<Piece> Removed { get; private set; }
+
+      public ICollection<Piece> Surviving { get; private set; }
 
       public AttackResult Result { get; private set; }
 
-      public PiecesShownEventArgs(ICollection<Piece> pieces, AttackResult result, Piece.Color attacker) : base()
+      public PiecesShownEventArgs(ICollection<Piece> removed, ICollection<Piece> surviving, AttackResult result, Piece.Color attacker) : base()
       {
-         Pieces = pieces;
+         Removed = removed;
+         Surviving = surviving;
          Result = result;
          Attacker = attacker;
       }

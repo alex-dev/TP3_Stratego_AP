@@ -39,6 +39,7 @@ namespace Stratego
       public List<Piece> ResoudreAttaque(Piece attaquant)
       {
          var removed = new List<Piece> { };
+         var alive = new List<Piece> { };
 
          if (!(attaquant is IOffensivePiece attaquant_))
          {
@@ -50,14 +51,16 @@ namespace Stratego
             {
                case AttackResult.Win:
                   removed.Add(Occupant);
+                  alive.Add(attaquant);
                   Occupant = attaquant;
                   break;
                case AttackResult.Equal:
-                  removed.Add(attaquant);
                   removed.Add(Occupant);
+                  removed.Add(attaquant);
                   Occupant = null;
                   break;
                case AttackResult.Lost:
+                  alive.Add(Occupant);
                   removed.Add(attaquant);
                   break;
             }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Stratego.Common;
 using Stratego.Common.GameLogic;
@@ -9,16 +10,18 @@ namespace Stratego.AI
 {
    public class AI : IPlayer
    {
+      private Piece.Color color_;
+
       private IDictionary<Coordinate, Piece> AIPieces { get; set; }
       private IDictionary<Coordinate, PieceData> OpponentPieces { get; set; }
       private uint MoveCount { get; set; }
 
-      public AI(IGameLogic logic)
+      public AI(IGameLogic logic, Piece.Color color = Piece.Color.Blue)
       {
          MoveCount = 0;
+         color_ = color;
 
          logic.PieceMoved += Logic_PieceMoved;
-         logic.PiecesShown += Logic_PiecesShown;
       }
 
       #region Event Handlers
@@ -27,19 +30,12 @@ namespace Stratego.AI
       {
          if (e.Player == Color)
          {
-            AIPieces[e.End] = AIPieces[e.Start];
-            AIPieces.Remove(e.Start);
+            UpdateAlly(e);
          }
          else
          {
-            OpponentPieces[e.End] = OpponentPieces[e.Start];
-            OpponentPieces.Remove(e.Start);
+            UpdateEnemy(e);
          }
-      }
-
-      private void Logic_PiecesShown(object sender, PiecesShownEventArgs e)
-      {
-         throw new System.NotImplementedException();
       }
 
       #endregion
@@ -52,14 +48,73 @@ namespace Stratego.AI
 
       public IDictionary<Coordinate, Piece> PlaceAIPieces()
       {
-
-
-         return AIPieces;
+         return AIPieces = new BoardPlacer(Color).GetBoard();
       }
 
       public void PlaceOpponentPieces(IEnumerable<Coordinate> opponent)
       {
          OpponentPieces = opponent.ToDictionary(coord => coord, coord => new PieceData());
+      }
+
+      private void UpdateAlly(PieceMovedEventArgs e)
+      {
+         if (e.Shown is null)
+         {
+            AIPieces[e.End] = AIPieces[e.Start];
+         }
+         else
+         {
+            OpponentPieces[e.End]
+               .UpdatePiece(e.Shown.Removed.Where(p => !p.IsColor(Color)).Single().GetType());
+
+            switch (e.Shown.Result)
+            {
+               case AttackResult.Win:
+                  AIPieces[e.End] = AIPieces[e.Start];
+                  OpponentPieces.Remove(e.End);
+                  break;
+               case AttackResult.Equal:
+                  OpponentPieces.Remove(e.End);
+                  break;
+               case AttackResult.Lost:
+                  break;
+            }
+         }
+
+         AIPieces.Remove(e.Start);
+      }
+
+      private void UpdateEnemy(PieceMovedEventArgs e)
+      {
+         if (e.Shown is null)
+         {
+            OpponentPieces[e.End] = OpponentPieces[e.Start];
+
+            if (Math.Abs(e.End.X - e.Start.X) > 1 || Math.Abs(e.End.Y - e.Start.Y) > 1)
+            {
+               OpponentPieces[e.End].UpdatePiece(typeof(Eclaireur));
+            }
+         }
+         else
+         {
+            OpponentPieces[e.Start]
+               .UpdatePiece(e.Shown.Removed.Where(p => !p.IsColor(Color)).Single().GetType());
+
+            switch (e.Shown.Result)
+            {
+               case AttackResult.Win:
+                  OpponentPieces[e.End] = OpponentPieces[e.Start];
+                  AIPieces.Remove(e.End);
+                  break;
+               case AttackResult.Equal:
+                  AIPieces.Remove(e.End);
+                  break;
+               case AttackResult.Lost:
+                  break;
+            }
+         }
+
+         OpponentPieces.Remove(e.Start);
       }
 
       #region IPlayer
