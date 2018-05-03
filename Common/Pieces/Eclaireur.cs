@@ -76,38 +76,38 @@ namespace Stratego.Common.Pieces
       {
          Coordinate value;
 
-         if (!owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
+         if (current.X > 0 && current.X <= 9 && !owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
          {
             yield return value;
 
-            while (!opponent.Contains(value) && !owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
+            while (!opponent.Contains(value) && current.X > 0 && current.X <= 9 && !owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
             {
                yield return value;
             }
          }
-         if (!owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
+         if (current.Y > 0 && current.Y <= 9 && !owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
          {
             yield return value;
 
-            while (!opponent.Contains(value) && !owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
+            while (!opponent.Contains(value) && current.Y > 0 && current.Y <= 9 && !owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
             {
                yield return value;
             }
          }
-         if (!owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
+         if (current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
          {
             yield return value;
 
-            while (!opponent.Contains(value) && !owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
+            while (!opponent.Contains(value) && current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
             {
                yield return value;
             }
          }
-         if (!owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
+         if (current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
          {
             yield return value;
 
-            while (!opponent.Contains(value) && !owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
+            while (!opponent.Contains(value) && current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
             {
                yield return value;
             }

@@ -85,7 +85,7 @@ namespace Stratego.AI
 
       private double EvaluateFlag()
       {
-         var flag = AI.OfType<KeyValuePair<Coordinate, Drapeau>>().Single();
+         var flag = AI.Where(p => p.Value is Drapeau).Single();
 
          return AI.Where(p => DiffPositions(flag.Key, p.Key) <= 2).Sum(p => FlagVulnerabilitiesValue[p.Value.GetType()])
             + Opponent.Where(p => DiffPositions(flag.Key, p.Key) <= 2).Count();
@@ -115,7 +115,7 @@ namespace Stratego.AI
             if (DoBombs && piece.Value.CanBeType(typeof(Bombe)))
             {
                bombs += (uint)AI
-                  .OfType<KeyValuePair<Coordinate, Demineur>>()
+                  .Where(p => p.Value is Demineur)
                   .Sum(p => DiffPositions(p.Key, piece.Key));
             }
 

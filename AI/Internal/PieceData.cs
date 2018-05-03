@@ -36,7 +36,7 @@ namespace Stratego.AI
       }
 
       public Type Piece { get; private set; }
-      public bool IsKnown { get { return Piece is null; } }
+      public bool IsKnown { get { return !(Piece is null); } }
       public bool IsMobile { get; set; }
 
       public void UpdatePiece(Type piece)

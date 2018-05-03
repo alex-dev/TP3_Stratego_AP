@@ -153,30 +153,17 @@ namespace Stratego
          return GrilleCases[p.X][p.Y].TypeCase == CaseJeu.LAC;
       }
 
-      public bool PositionnerPieces(List<Piece> lstPieces, Piece.Color couleurJoueur)
+      public bool PositionnerPieces(IDictionary<Coordinate, Piece> pieces, Piece.Color couleurJoueur)
       {
          bool positionnementApplique = false;
 
-         int compteur = 0;
-         int decallage = 0;
-
-         if (couleurJoueur == Piece.Color.Red)
-         {
-            decallage = 6;
-         }
-
-         if (!PositionnementFait(couleurJoueur) && lstPieces.Count == 40)
+         if (!PositionnementFait(couleurJoueur))
          {
             positionnementApplique = true;
 
-            for (int j = 0 + decallage; j < 4 + decallage; j++)
+            foreach (var piece in pieces)
             {
-               for (int i = 0; i < TAILLE_GRILLE_JEU; i++)
-               {
-                  GrilleCases[i][j].Occupant = lstPieces[compteur];
-
-                  compteur++;
-               }
+               GrilleCases[piece.Key.X][piece.Key.Y].Occupant = piece.Value;
             }
          }
 

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -84,8 +86,15 @@ namespace Stratego
          DefinirZoneSelectionGrille();
          InitialiserSelectionActive();
 
-         // Initialiser l'IA.
          AI = new AI.AI(Logic);
+
+         Logic.TurnChange += (sender, e) =>
+         {
+            if (e.Color == AI.Color)
+            {
+               LaunchAI(sender, e);
+            }
+         };
 
          PositionnerPieces();
          InitialiserAffichagePieces();
@@ -121,22 +130,35 @@ namespace Stratego
       {
          const Piece.Color red = Piece.Color.Red;
 
-         List<Piece> piecesRouges = new List<Piece>() { new Marechal(red), new Capitaine(red), new Lieutenant(red), new Demineur(red), new Eclaireur(red), new Capitaine(red), new Eclaireur(red), new Eclaireur(red), new Eclaireur(red), new Capitaine(red)
-                                                , new Sergent(red), new Eclaireur(red), new Colonel(red), new Colonel(red), new General(red), new Eclaireur(red), new Sergent(red), new Bombe(red), new Bombe(red), new Lieutenant(red)
-                                                , new Commandant(red), new Eclaireur(red), new Commandant(red), new Espion(red), new Capitaine(red), new Lieutenant(red), new Bombe(red), new Sergent(red), new Lieutenant(red), new Eclaireur(red)
-                                                , new Commandant(red), new Demineur(red), new Demineur(red), new Demineur(red), new Sergent(red), new Bombe(red), new Drapeau(red), new Bombe(red), new Bombe(red), new Demineur(red)
-                                                };
+         var player = new Dictionary<Coordinate, Piece> { };
 
-         GrillePartie.PositionnerPieces(piecesRouges, red);
+         var pieces = new List<Piece>()
+         {
+            new Marechal(red), new Capitaine(red), new Lieutenant(red), new Demineur(red),
+            new Eclaireur(red), new Capitaine(red), new Eclaireur(red), new Eclaireur(red),
+            new Eclaireur(red), new Capitaine(red), new Sergent(red), new Eclaireur(red),
+            new Colonel(red), new Colonel(red), new General(red), new Eclaireur(red), new Sergent(red),
+            new Bombe(red), new Bombe(red), new Lieutenant(red), new Commandant(red), new Eclaireur(red),
+            new Commandant(red), new Espion(red), new Capitaine(red), new Lieutenant(red), new Bombe(red),
+            new Sergent(red), new Lieutenant(red), new Eclaireur(red), new Commandant(red), new Demineur(red),
+            new Demineur(red), new Demineur(red), new Sergent(red), new Bombe(red), new Drapeau(red),
+            new Bombe(red), new Bombe(red), new Demineur(red)
+         };
 
-         AI.PlaceOpponentPieces(Enumerable.Range(0, GrilleJeu.TAILLE_GRILLE_JEU)
-            .SelectMany(i => from j in Enumerable.Range(
-                                GrilleJeu.TAILLE_GRILLE_JEU - 1 - 40 / GrilleJeu.TAILLE_GRILLE_JEU,
-                                40 / GrilleJeu.TAILLE_GRILLE_JEU)
-                             select new Coordinate(i, j)));
+         for (int i = 0; i < GrilleJeu.TAILLE_GRILLE_JEU; ++i)
+         {
+            int j = 0;
+            for (int k = 6; k < GrilleJeu.TAILLE_GRILLE_JEU; ++k, ++j)
+            {
+               player[new Coordinate(i, k)] = pieces[i + j * 10];
+            }
+         }
 
-         GrillePartie.PositionnerPieces((from coord in AI.PlaceAIPieces().OrderBy(p => p.Key.X * 100 + p.Key.Y)
-                                         select coord.Value).ToList(), Piece.Color.Blue);
+         GrillePartie.PositionnerPieces(player, red);
+
+         AI.PlaceOpponentPieces(player.Keys);
+
+         GrillePartie.PositionnerPieces(AI.PlaceAIPieces(), Piece.Color.Blue);
       }
 
       private void DiviserGrilleJeu()
@@ -258,7 +280,6 @@ namespace Stratego
             }
 
          }
-
       }
 
       private void InitialiserSelectionActive()
@@ -378,7 +399,7 @@ namespace Stratego
 
          if (caseCible != caseDepart)
          {
-            Label affichageAttaquant = GrillePieces[(int)caseDepart.X][(int)caseDepart.Y];
+            Label affichageAttaquant = GrillePieces[caseDepart.X][caseDepart.Y];
             reponse = Logic.ExecuterCoup(caseDepart, caseCible);
 
             if (reponse.DeplacementFait)
@@ -386,24 +407,24 @@ namespace Stratego
 
                // Retrait de la pièce attaquante de sa position d'origine.
                grdPartie.Children.Remove(affichageAttaquant);
-               GrillePieces[(int)caseDepart.X][(int)caseDepart.Y] = null;
+               GrillePieces[caseDepart.X][caseDepart.Y] = null;
 
                if (reponse.PiecesEliminees.Count == 2)
                {
                   // Retrait de la pièce attaquée.
-                  grdPartie.Children.Remove(GrillePieces[(int)caseCible.X][(int)caseCible.Y]);
-                  GrillePieces[(int)caseCible.X][(int)caseCible.Y] = null;
+                  grdPartie.Children.Remove(GrillePieces[caseCible.X][caseCible.Y]);
+                  GrillePieces[caseCible.X][caseCible.Y] = null;
                }
                else if (reponse.Result is null || reponse.Result == AttackResult.Win)
                {
                   // Remplacement de la pièce attaquée par la pièce attaquante.
-                  grdPartie.Children.Remove(GrillePieces[(int)caseCible.X][(int)caseCible.Y]);
-                  GrillePieces[(int)caseCible.X][(int)caseCible.Y] = null;
+                  grdPartie.Children.Remove(GrillePieces[caseCible.X][caseCible.Y]);
+                  GrillePieces[caseCible.X][caseCible.Y] = null;
 
-                  GrillePieces[(int)caseCible.X][(int)caseCible.Y] = affichageAttaquant;
+                  GrillePieces[caseCible.X][caseCible.Y] = affichageAttaquant;
 
-                  Grid.SetColumn(affichageAttaquant, (int)caseCible.X);
-                  Grid.SetRow(affichageAttaquant, (int)caseCible.Y);
+                  Grid.SetColumn(affichageAttaquant, caseCible.X);
+                  Grid.SetRow(affichageAttaquant, caseCible.Y);
                   grdPartie.Children.Add(affichageAttaquant);
                }
             }
@@ -418,7 +439,29 @@ namespace Stratego
 
       private void LaunchAI(object sender, TurnChangeEventArgs e)
       {
+         new Thread(() =>
+         {
+            Move move;
+            var timeout = new Thread(() => { Thread.Sleep(1000); });
 
+            timeout.Start();
+            try
+            {
+               move = AI.MakeMove();
+               timeout.Join();
+
+               Dispatcher.Invoke(() => ExecuterCoup(move.Start, move.End));
+            }
+            catch (Exception)
+            {
+               Dispatcher.Invoke(() => PlayerLost(AI.Color));
+            }
+         }).Start();
+      }
+
+      private void PlayerLost(Piece.Color color)
+      {
+         MessageBox.Show(string.Format("{0} lost", color.ToString()));
       }
    }
 }

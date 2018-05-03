@@ -74,7 +74,7 @@ namespace Stratego.AI
       {
          foreach (var miner in FindMinersNotOnBoard(board.Values))
          {
-            var miners = board.OfType<KeyValuePair<Coordinate, Demineur>>();
+            var miners = board.Where(p => p.Value is Demineur);
 
             var coords = coordinates.Where(coord_ =>
             {
@@ -96,7 +96,7 @@ namespace Stratego.AI
       {
          foreach (var scout in FindScoutsNotOnBoard(board.Values))
          {
-            var scouts = board.OfType<KeyValuePair<Coordinate, Eclaireur>>();
+            var scouts = board.Where(p => p.Value is Eclaireur);
 
             var coords = coordinates.Where(coord_ => coord_.Y < 3 || scouts.Where(p => p.Key.Y <= 3).Count() < 3)
                .ToList();

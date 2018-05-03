@@ -16,25 +16,31 @@ namespace Stratego.AI
          var owned = new HashSet<Coordinate>(AI.Keys);
          var opponent = new HashSet<Coordinate>(Opponent.Keys);
 
-         Coordinate? start = null;
-         Coordinate? end = null;
-         double score = 0;
-
-         foreach (var piece in Opponent.Where(p => !p.Value.IsKnown || p.Value.Piece.IsSubclassOf(typeof(IMobilePiece))))
+         var moves = (from p in (from p in Opponent
+                                 select new KeyValuePair<Coordinate, Piece>(p.Key, GetPiece(p.Value)))
+                      where p.Value is IMobilePiece
+                      select p)
+            .SelectMany(p => from destination in ((IMobilePiece)p.Value).GetPossibleMovesFromState(p.Key, owned, opponent)
+                             select Tuple.Create(p.Value, p.Key, destination));
+         if (!moves.Any())
          {
-            var piece_ = piece.Value.IsKnown
-               ? Activator.CreateInstance(piece.Value.Piece, EnemyColor) as Piece
-               : new Marechal(EnemyColor);
+            throw new NoMoveLeftException();
+         }
+         else
+         {
+            Coordinate? start = null;
+            Coordinate? end = null;
+            double score = 0;
 
-            foreach (var destination in ((IMobilePiece)piece_).GetPossibleMovesFromState(piece.Key, opponent, owned))
+            foreach (var move in moves)
             {
-               double score_ = EvaluateMove(piece.Key, destination);
+               double score_ = EvaluateMove(move.Item2, move.Item3);
 
-               if (score > score_)
+               if (score < score_)
                {
                   score = score_;
-                  start = piece.Key;
-                  end = destination;
+                  start = move.Item2;
+                  end = move.Item3;
                }
 
                if (Beta > score_)
@@ -48,22 +54,24 @@ namespace Stratego.AI
                }
             }
 
-            if (Alpha > Beta)
-            {
-               break;
-            }
+            return Tuple.Create(new Move { Start = (Coordinate)start, End = (Coordinate)end }, score);
          }
-
-         return Tuple.Create(new Move { Start = (Coordinate)start, End = (Coordinate)end }, score);
       }
 
       protected override double EvaluateMove(Coordinate start, Coordinate end)
       {
          var (ai, opp) = SimulateMove(start, end);
 
-         return Deep > 2
-            ? new InternalAIAlly(ai, opp, MoveCount + 1, Alpha, Beta, Deep).FindBestMove().Item2
-            : new Evaluator(ai, opp, MoveCount + 1).EvaluateHeuristicBoard();
+         try
+         {
+            return Deep > 2
+               ? new Evaluator(ai, opp, MoveCount + 1).EvaluateHeuristicBoard()
+               : new InternalAIAlly(ai, opp, MoveCount + 1, Alpha, Beta, Deep).FindBestMove().Item2;
+         }
+         catch (NoMoveLeftException)
+         {
+            return double.NegativeInfinity;
+         }
       }
 
       protected override Tuple<IDictionary<Coordinate, Piece>, IDictionary<Coordinate, PieceData>> SimulateMove(Coordinate start, Coordinate end)
@@ -71,7 +79,7 @@ namespace Stratego.AI
          var ai = new Dictionary<Coordinate, Piece>(AI);
          var opp = new Dictionary<Coordinate, PieceData>(Opponent);
 
-         if (ai[end] is null)
+         if (!ai.ContainsKey(end))
          {
             opp[end] = opp[start];
             opp.Remove(start);
@@ -114,6 +122,13 @@ namespace Stratego.AI
          }
 
          return Tuple.Create<IDictionary<Coordinate, Piece>, IDictionary<Coordinate, PieceData>>(ai, opp);
+      }
+
+      private Piece GetPiece(PieceData piece)
+      {
+         return piece.IsKnown
+            ? Activator.CreateInstance(piece.Piece, EnemyColor) as Piece
+            : new Marechal(EnemyColor);
       }
    }
 }

@@ -8,56 +8,69 @@ namespace Stratego.AI
 {
    internal class InternalAIAlly : InternalAI
    {
-      public InternalAIAlly(IDictionary<Coordinate, Piece> ai, IDictionary<Coordinate, PieceData> opponent, uint moveCount, double alpha = 999, double beta = -999, uint deep = 0)
-         :base(ai, opponent, moveCount, alpha, beta, deep) { }
+      public InternalAIAlly(IDictionary<Coordinate, Piece> ai, IDictionary<Coordinate, PieceData> opponent, uint moveCount,
+         double alpha = double.NegativeInfinity, double beta = double.PositiveInfinity, uint deep = 0)
+         : base(ai, opponent, moveCount, alpha, beta, deep) { }
 
       public override Tuple<Move, double> FindBestMove()
       {
          var owned = new HashSet<Coordinate>(AI.Keys);
          var opponent = new HashSet<Coordinate>(Opponent.Keys);
 
-         Coordinate? start = null;
-         Coordinate? end = null;
-         double score = 0;
+         var moves = (from p in AI
+                      where p.Value is IMobilePiece
+                      select p)
+            .SelectMany(p => from destination in ((IMobilePiece)p.Value).GetPossibleMovesFromState(p.Key, owned, opponent)
+                             select Tuple.Create(p.Value, p.Key, destination));
 
-         foreach (var piece in AI.OfType<KeyValuePair<Coordinate, IMobilePiece>>())
+         if (!moves.Any())
          {
-            foreach (var destination in piece.Value.GetPossibleMovesFromState(piece.Key, owned, opponent))
+            throw new NoMoveLeftException();
+         }
+         else
+         {
+            Coordinate? start = null;
+            Coordinate? end = null;
+            double score = 0;
+
+            foreach (var move in moves)
             {
-               double score_ = EvaluateMove(piece.Key, destination);
+               double score_ = EvaluateMove(move.Item2, move.Item3);
 
                if (score < score_)
                {
                   score = score_;
-                  start = piece.Key;
-                  end = destination;
+                  start = move.Item2;
+                  end = move.Item3;
                }
 
-               if (Alpha < score_)
+               if (Deep > 0 && Alpha < score_)
                {
                   Alpha = score_;
                }
 
-               if (Alpha > Beta)
+               if (Deep > 0 && Alpha > Beta)
                {
                   break;
                }
             }
 
-            if (Alpha > Beta)
-            {
-               break;
-            }
+            return Tuple.Create(new Move { Start = (Coordinate)start, End = (Coordinate)end }, score);
          }
-
-         return Tuple.Create(new Move { Start = (Coordinate)start, End = (Coordinate)end }, score);
       }
 
       protected override double EvaluateMove(Coordinate start, Coordinate end)
       {
          var (ai, opp) = SimulateMove(start, end);
 
-         return new InternalAIOpponent(ai, opp, MoveCount + 1, Alpha, Beta, Deep + 1).FindBestMove().Item2;
+         try
+         {
+            return new InternalAIOpponent(ai, opp, MoveCount + 1, Alpha, Beta, Deep + 1).FindBestMove().Item2;
+         }
+         catch (NoMoveLeftException)
+         {
+            return double.PositiveInfinity;
+         }
       }
 
       protected override Tuple<IDictionary<Coordinate, Piece>, IDictionary<Coordinate, PieceData>> SimulateMove(Coordinate start, Coordinate end)
@@ -65,7 +78,7 @@ namespace Stratego.AI
          var ai = new Dictionary<Coordinate, Piece>(AI);
          var opp = new Dictionary<Coordinate, PieceData>(Opponent);
 
-         if (opp[end] is null)
+         if (!opp.ContainsKey(end))
          {
             ai[end] = ai[start];
             ai.Remove(start);

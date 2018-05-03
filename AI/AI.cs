@@ -22,6 +22,7 @@ namespace Stratego.AI
          color_ = color;
 
          logic.PieceMoved += Logic_PieceMoved;
+         logic.TurnChange += (sender, e) => { ++MoveCount; };
       }
 
       #region Event Handlers
@@ -42,8 +43,19 @@ namespace Stratego.AI
 
       public Move MakeMove()
       {
-         return new InternalAIAlly(new Dictionary<Coordinate, Piece>(AIPieces), new Dictionary<Coordinate, PieceData>(OpponentPieces), MoveCount)
-            .FindBestMove().Item1;
+         try
+         {
+            return new InternalAIAlly(
+               new Dictionary<Coordinate, Piece>(AIPieces),
+               new Dictionary<Coordinate, PieceData>(OpponentPieces),
+               MoveCount)
+               .FindBestMove().Item1;
+         }
+         catch(NoMoveLeftException e)
+         {
+            Forfeit.Invoke(this, new ForfeitEventArgs(Color));
+            throw e;
+         }
       }
 
       public IDictionary<Coordinate, Piece> PlaceAIPieces()
@@ -94,6 +106,10 @@ namespace Stratego.AI
             {
                OpponentPieces[e.End].UpdatePiece(typeof(Eclaireur));
             }
+            else
+            {
+               OpponentPieces[e.End].IsMobile = true;
+            }
          }
          else
          {
@@ -119,8 +135,13 @@ namespace Stratego.AI
 
       #region IPlayer
 
+      public event EventHandler<ForfeitEventArgs> Forfeit;
+
       /// <inheritdoc />
-      public Piece.Color Color { get { return AIPieces.First().Value.Couleur; } }
+      public Piece.Color Color
+      {
+         get { return AIPieces is null ? color_ : AIPieces.First().Value.Couleur; }
+      }
 
       #endregion
    }

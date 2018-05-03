@@ -15,7 +15,6 @@ namespace Stratego
 
       public event EventHandler<GameEndEventArgs> GameEnd;
       public event EventHandler<TurnChangeEventArgs> TurnChange;
-      public event EventHandler<PiecesShownEventArgs> PiecesShown;
       public event EventHandler<PieceMovedEventArgs> PieceMoved;
 
       public GameLogic(GrilleJeu grille)
