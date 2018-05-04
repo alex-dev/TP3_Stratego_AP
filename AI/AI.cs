@@ -41,20 +41,20 @@ namespace Stratego.AI
 
       #endregion
 
-      public Move MakeMove()
+      public Move? MakeMove()
       {
          try
          {
-            return new InternalAIAlly(
+            return new InternalAIMain(
                new Dictionary<Coordinate, Piece>(AIPieces),
                new Dictionary<Coordinate, PieceData>(OpponentPieces),
                MoveCount)
                .FindBestMove().Item1;
          }
-         catch(NoMoveLeftException e)
+         catch(NoMoveLeftException)
          {
             Forfeit.Invoke(this, new ForfeitEventArgs(Color));
-            throw e;
+            return null;
          }
       }
 

@@ -10,10 +10,14 @@ namespace Stratego.AI
    {
       protected static IEnumerable<Type> Types { get; set; }
 
-      public void SetTypes(Type[] data = null)
+      static InternalAI()
       {
-         Types = data is null
-            ? new Type[]
+         SetTypes();
+      }
+
+      public static void SetTypes(Type[] data = null)
+      {
+         Types = data ?? new Type[]
             {
                typeof(Marechal),
                typeof(General),
@@ -27,8 +31,7 @@ namespace Stratego.AI
                typeof(Espion),
                typeof(Bombe),
                typeof(Drapeau)
-            }
-            : data;
+            };
       }
 
       protected Piece.Color EnemyColor

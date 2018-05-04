@@ -103,23 +103,32 @@ namespace Stratego.Common.Pieces
       /// <inheritdoc />
       public virtual IEnumerable<Coordinate> GetPossibleMovesFromState(Coordinate current, HashSet<Coordinate> owned, HashSet<Coordinate> opponent)
       {
-         Coordinate value;
+         {
+            if (Coordinate.Create(current.X - 1, current.Y) is Coordinate value && !value.IsLake() && !owned.Contains(value))
+            {
+               yield return value;
+            }
+         }
 
-         if (current.X > 0 && current.X <= 9 && !owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
          {
-            yield return value;
+            if (Coordinate.Create(current.X, current.Y - 1) is Coordinate value && !value.IsLake() && !owned.Contains(value))
+            {
+               yield return value;
+            }
          }
-         if (current.Y > 0 && current.Y <= 9 && !owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
+
          {
-            yield return value;
+            if (Coordinate.Create(current.X + 1, current.Y) is Coordinate value && !value.IsLake() && !owned.Contains(value))
+            {
+               yield return value;
+            }
          }
-         if (current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
+
          {
-            yield return value;
-         }
-         if (current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
-         {
-            yield return value;
+            if (Coordinate.Create(current.X, current.Y + 1) is Coordinate value && !value.IsLake() && !owned.Contains(value))
+            {
+               yield return value;
+            }
          }
       }
 

@@ -74,42 +74,55 @@ namespace Stratego.Common.Pieces
       /// <inheritdoc />
       public override IEnumerable<Coordinate> GetPossibleMovesFromState(Coordinate current, HashSet<Coordinate> owned, HashSet<Coordinate> opponent)
       {
-         Coordinate value;
-
-         if (current.X > 0 && current.X <= 9 && !owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
          {
-            yield return value;
-
-            while (!opponent.Contains(value) && current.X > 0 && current.X <= 9 && !owned.Contains(value = new Coordinate(current.X - 1, current.Y)))
+            if (Coordinate.Create(current.X - 1, current.Y) is Coordinate value && !value.IsLake() && !owned.Contains(value))
             {
                yield return value;
+
+               while (!opponent.Contains(value) && Coordinate.Create(value.X - 1, value.Y) is Coordinate value_ && !value_.IsLake() && !owned.Contains(value_))
+               {
+                  value = value_;
+                  yield return value_;
+               }
             }
          }
-         if (current.Y > 0 && current.Y <= 9 && !owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
-         {
-            yield return value;
 
-            while (!opponent.Contains(value) && current.Y > 0 && current.Y <= 9 && !owned.Contains(value = new Coordinate(current.X, current.Y - 1)))
+         {
+            if (Coordinate.Create(current.X, current.Y - 1) is Coordinate value && !value.IsLake() && !owned.Contains(value))
             {
                yield return value;
+
+               while (!opponent.Contains(value) && Coordinate.Create(value.X, value.Y - 1) is Coordinate value_ && !value_.IsLake() && !owned.Contains(value_))
+               {
+                  value = value_;
+                  yield return value_;
+               }
             }
          }
-         if (current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
-         {
-            yield return value;
 
-            while (!opponent.Contains(value) && current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X + 1, current.Y)))
+         {
+            if (Coordinate.Create(current.X + 1, current.Y) is Coordinate value && !value.IsLake() && !owned.Contains(value))
             {
                yield return value;
+
+               while (!opponent.Contains(value) && Coordinate.Create(value.X + 1, value.Y) is Coordinate value_ && !value_.IsLake() && !owned.Contains(value_))
+               {
+                  value = value_;
+                  yield return value_;
+               }
             }
          }
-         if (current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
-         {
-            yield return value;
 
-            while (!opponent.Contains(value) && current.X >= 0 && current.X < 9 && !owned.Contains(value = new Coordinate(current.X, current.Y + 1)))
+         {
+            if (Coordinate.Create(current.X, current.Y + 1) is Coordinate value && !value.IsLake() && !owned.Contains(value))
             {
                yield return value;
+
+               while (!opponent.Contains(value) && Coordinate.Create(value.X, value.Y + 1) is Coordinate value_ && !value_.IsLake() && !owned.Contains(value_))
+               {
+                  value = value_;
+                  yield return value_;
+               }
             }
          }
       }

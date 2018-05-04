@@ -20,8 +20,9 @@ namespace Stratego.AI
                                  select new KeyValuePair<Coordinate, Piece>(p.Key, GetPiece(p.Value)))
                       where p.Value is IMobilePiece
                       select p)
-            .SelectMany(p => from destination in ((IMobilePiece)p.Value).GetPossibleMovesFromState(p.Key, owned, opponent)
+            .SelectMany(p => from destination in ((IMobilePiece)p.Value).GetPossibleMovesFromState(p.Key, opponent, owned)
                              select Tuple.Create(p.Value, p.Key, destination));
+
          if (!moves.Any())
          {
             throw new NoMoveLeftException();
@@ -64,7 +65,7 @@ namespace Stratego.AI
 
          try
          {
-            return Deep > 2
+            return Deep >= 2
                ? new Evaluator(ai, opp, MoveCount + 1).EvaluateHeuristicBoard()
                : new InternalAIAlly(ai, opp, MoveCount + 1, Alpha, Beta, Deep).FindBestMove().Item2;
          }

@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Stratego.Common
 {
+   [Serializable]
    public class GameException : Exception
    {
       public GameException() : base() { }

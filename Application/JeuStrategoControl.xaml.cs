@@ -33,61 +33,14 @@ namespace Stratego
       private List<List<Label>> GrillePieces { get; set; }
       private Rectangle SelectionActive { get; set; }
 
-      /*
-      #region Code relié au patron observateur
-
-      List<IObserver<JeuStrategoControl>> observers;
-
-      // Oui, une classe privée (et interne).
-      private class Unsubscriber : IDisposable
-      {
-         private List<IObserver<JeuStrategoControl>> _observers;
-         private IObserver<JeuStrategoControl> _observer;
-
-         public Unsubscriber(List<IObserver<JeuStrategoControl>> observers, IObserver<JeuStrategoControl> observer)
-         {
-            this._observers = observers;
-            this._observer = observer;
-         }
-
-         public void Dispose()
-         {
-            if (!(_observer == null)) _observers.Remove(_observer);
-         }
-      }
-
-      public IDisposable Subscribe(IObserver<JeuStrategoControl> observer)
-      {
-         if (!observers.Contains(observer))
-            observers.Add(observer);
-
-         return new Unsubscriber(observers, observer);
-      }
-
-      private void Notify()
-      {
-         foreach (IObserver<JeuStrategoControl> ob in observers)
-         {
-            ob.OnNext(this);
-         }
-      }
-      #endregion
-
-      private IA_Stratego IA { get; set; }*/
+      #region Constructors
 
       public JeuStrategoControl()
       {
-         InitializeComponent();
-
          Logic = new GameLogic(new GrilleJeu());
-
-         DiviserGrilleJeu();
-         ColorerGrilleJeu();
-         DefinirZoneSelectionGrille();
-         InitialiserSelectionActive();
-
          AI = new AI.AI(Logic);
 
+         AI.Forfeit += (sender, e) => ShowLost(e.Color);
          Logic.TurnChange += (sender, e) =>
          {
             if (e.Color == AI.Color)
@@ -97,6 +50,14 @@ namespace Stratego
          };
 
          PositionnerPieces();
+
+         InitializeComponent();
+
+         DiviserGrilleJeu();
+         ColorerGrilleJeu();
+         DefinirZoneSelectionGrille();
+         InitialiserSelectionActive();
+
          InitialiserAffichagePieces();
 
          #region Tests
@@ -125,6 +86,8 @@ namespace Stratego
 
          #endregion
       }
+
+      #region Initializers
 
       private void PositionnerPieces()
       {
@@ -350,6 +313,17 @@ namespace Stratego
          return labelAffichage;
       }
 
+      #endregion
+
+      #endregion
+
+      #region Event Handlers
+
+      private void ShowLost(Piece.Color color)
+      {
+         throw new NotImplementedException();
+      }
+
       private void ResoudreSelectionCase(object sender, MouseButtonEventArgs e)
       {
          Rectangle caseSelectionnee = (Rectangle)sender;
@@ -393,6 +367,26 @@ namespace Stratego
          }
       }
 
+      private void LaunchAI(object sender, TurnChangeEventArgs e)
+      {
+         new Thread(() =>
+         {
+            Move? move;
+            var timeout = new Thread(() => { Thread.Sleep(1000); });
+
+            timeout.Start();
+            move = AI.MakeMove();
+            timeout.Join();
+
+            if (move is Move m)
+            {
+               Dispatcher.Invoke(() => ExecuterCoup(m.Start, m.End));
+            }
+         }).Start();
+      }
+
+      #endregion
+
       public ReponseDeplacement ExecuterCoup(Coordinate caseDepart, Coordinate caseCible)
       {
          ReponseDeplacement reponse;
@@ -435,33 +429,6 @@ namespace Stratego
          }
 
          return reponse;
-      }
-
-      private void LaunchAI(object sender, TurnChangeEventArgs e)
-      {
-         new Thread(() =>
-         {
-            Move move;
-            var timeout = new Thread(() => { Thread.Sleep(1000); });
-
-            timeout.Start();
-            try
-            {
-               move = AI.MakeMove();
-               timeout.Join();
-
-               Dispatcher.Invoke(() => ExecuterCoup(move.Start, move.End));
-            }
-            catch (Exception)
-            {
-               Dispatcher.Invoke(() => PlayerLost(AI.Color));
-            }
-         }).Start();
-      }
-
-      private void PlayerLost(Piece.Color color)
-      {
-         MessageBox.Show(string.Format("{0} lost", color.ToString()));
       }
    }
 }

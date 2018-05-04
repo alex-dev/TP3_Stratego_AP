@@ -1,15 +1,19 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
+using System.Threading.Tasks;
+using MoreLinq;
 using Stratego.Common;
 using Stratego.Common.Pieces;
 
 namespace Stratego.AI
 {
-   internal class InternalAIAlly : InternalAI
+   internal class InternalAIMain : InternalAI
    {
-      public InternalAIAlly(IDictionary<Coordinate, Piece> ai, IDictionary<Coordinate, PieceData> opponent, uint moveCount, double alpha, double beta, uint deep)
-         : base(ai, opponent, moveCount, alpha, beta, deep) { }
+      public InternalAIMain(IDictionary<Coordinate, Piece> ai, IDictionary<Coordinate, PieceData> opponent, uint moveCount)
+         : base(ai, opponent, moveCount, double.NegativeInfinity, double.PositiveInfinity, 0) { }
 
       public override Tuple<Move, double> FindBestMove()
       {
@@ -28,33 +32,18 @@ namespace Stratego.AI
          }
          else
          {
-            Coordinate? start = null;
-            Coordinate? end = null;
-            double score = 0;
+            var time = System.Diagnostics.Stopwatch.StartNew();
+            var scores = new ConcurrentBag<Tuple<Move, double>>();
 
-            foreach (var move in moves)
+            Parallel.ForEach(moves, move =>
             {
-               double score_ = EvaluateMove(move.Item2, move.Item3);
+               scores.Add(Tuple.Create(
+                  new Move { Start = move.Item2, End = move.Item3 },
+                  EvaluateMove(move.Item2, move.Item3)));
+            });
 
-               if (score < score_)
-               {
-                  score = score_;
-                  start = move.Item2;
-                  end = move.Item3;
-               }
-
-               if (Alpha < score_)
-               {
-                  Alpha = score_;
-               }
-
-               if (Alpha > Beta)
-               {
-                  break;
-               }
-            }
-
-            return Tuple.Create(new Move { Start = (Coordinate)start, End = (Coordinate)end }, score);
+            time.Stop();
+            return scores.MaxBy(score => score.Item2);
          }
       }
 
@@ -64,7 +53,14 @@ namespace Stratego.AI
 
          try
          {
-            return new InternalAIOpponent(ai, opp, MoveCount + 1, Alpha, Beta, Deep + 1).FindBestMove().Item2;
+            var setting = GCSettings.LatencyMode;
+            double value;
+
+            GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+            value = new InternalAIOpponent(ai, opp, MoveCount + 1, Alpha, Beta, Deep + 1).FindBestMove().Item2;
+            GCSettings.LatencyMode = setting;
+
+            return value;
          }
          catch (NoMoveLeftException)
          {

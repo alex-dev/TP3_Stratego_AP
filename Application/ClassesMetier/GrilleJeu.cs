@@ -132,25 +132,10 @@ namespace Stratego
 
       #region Methods
 
-      /// <summary>Valide la <see cref="Coordinate"/> en fonction de la taille du jeu.</summary>
-      /// <param name="p">La <see cref="Coordinate"/> à valider.</param>
-      /// <remarks>Devrait être une méthode de <see cref="Coordinate"/> recevant le min max.</remarks>
-      private bool EstCoordonneeValide(Coordinate p)
-      {
-         if ((p.X >= 0 && p.X < TAILLE_GRILLE_JEU) && (p.Y >= 0 && p.Y < TAILLE_GRILLE_JEU))
-         {
-            return true;
-         }
-         else
-         {
-            return false;
-         }
-      }
-
       /// <summary>Valide que la <see cref="Coordinate"/> est une case Lac.</summary>
       public bool EstCoordonneeLac(Coordinate p)
       {
-         return GrilleCases[p.X][p.Y].TypeCase == CaseJeu.LAC;
+         return p.IsLake();
       }
 
       public bool PositionnerPieces(IDictionary<Coordinate, Piece> pieces, Piece.Color couleurJoueur)
@@ -238,8 +223,7 @@ namespace Stratego
       /// <inheritdoc />
       public bool EstDeplacementPermis(Coordinate CoordinateDepart, Coordinate CoordinateCible)
       {
-         return EstCoordonneeValide(CoordinateDepart) && EstCoordonneeValide(CoordinateCible)
-            && GrilleCases[CoordinateDepart.X][CoordinateDepart.Y].EstDeplacementLegal(GrilleCases[CoordinateCible.X][CoordinateCible.Y]);
+         return GrilleCases[CoordinateDepart.X][CoordinateDepart.Y].EstDeplacementLegal(GrilleCases[CoordinateCible.X][CoordinateCible.Y]);
       }
 
       /// <inheritdoc />
