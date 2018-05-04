@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Stratego.Common;
 using Stratego.Common.GameLogic;
 using Stratego.Common.Pieces;
@@ -202,12 +203,15 @@ namespace Stratego
          {
             var caseDepart = GrilleCases[CoordinateDepart.X][CoordinateDepart.Y];
             var caseCible = GrilleCases[CoordinateCible.X][CoordinateCible.Y];
+            var data = caseCible.ResoudreAttaque(caseDepart.Occupant);
 
             // Faire le déplacement.
             reponse = new ReponseDeplacement
             {
-               PiecesEliminees = caseCible.ResoudreAttaque(caseDepart.Occupant),
-               DeplacementFait = true
+               DeplacementFait = true,
+               PiecesEliminees = data.Item1.OfType<Piece>().ToList(),
+               PieceSurvivante = data.Item2.OfType<Piece>().ToList(),
+               Result = data.Item3
             };
 
             caseDepart.Occupant = null;

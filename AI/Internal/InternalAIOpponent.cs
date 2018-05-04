@@ -31,13 +31,13 @@ namespace Stratego.AI
          {
             Coordinate? start = null;
             Coordinate? end = null;
-            double score = 0;
+            double score = double.PositiveInfinity;
 
             foreach (var move in moves)
             {
                double score_ = EvaluateMove(move.Item2, move.Item3);
 
-               if (score < score_)
+               if (score > score_)
                {
                   score = score_;
                   start = move.Item2;
@@ -65,13 +65,13 @@ namespace Stratego.AI
 
          try
          {
-            return Deep >= 2
+            return Deep > 1 // Doit avoir fait au moins un cycle complet (ai - joueur - ai - joueur)
                ? new Evaluator(ai, opp, MoveCount + 1).EvaluateHeuristicBoard()
                : new InternalAIAlly(ai, opp, MoveCount + 1, Alpha, Beta, Deep).FindBestMove().Item2;
          }
          catch (NoMoveLeftException)
          {
-            return double.NegativeInfinity;
+            return double.PositiveInfinity;
          }
       }
 

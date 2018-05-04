@@ -30,7 +30,7 @@ namespace Stratego.AI
          {
             Coordinate? start = null;
             Coordinate? end = null;
-            double score = 0;
+            double score = double.NegativeInfinity;
 
             foreach (var move in moves)
             {
@@ -68,7 +68,7 @@ namespace Stratego.AI
          }
          catch (NoMoveLeftException)
          {
-            return double.PositiveInfinity;
+            return double.NegativeInfinity;
          }
       }
 

@@ -32,18 +32,30 @@ namespace Stratego.AI
          }
          else
          {
+            Coordinate? start = null;
+            Coordinate? end = null;
+            double score = double.NegativeInfinity;
             var time = System.Diagnostics.Stopwatch.StartNew();
-            var scores = new ConcurrentBag<Tuple<Move, double>>();
 
-            Parallel.ForEach(moves, move =>
+            foreach (var move in moves)
             {
-               scores.Add(Tuple.Create(
-                  new Move { Start = move.Item2, End = move.Item3 },
-                  EvaluateMove(move.Item2, move.Item3)));
-            });
+               double score_ = EvaluateMove(move.Item2, move.Item3);
+
+               if (score < score_)
+               {
+                  score = score_;
+                  start = move.Item2;
+                  end = move.Item3;
+               }
+
+               if (Alpha < score_)
+               {
+                  Alpha = score_;
+               }
+            }
 
             time.Stop();
-            return scores.MaxBy(score => score.Item2);
+            return Tuple.Create(new Move { Start = (Coordinate)start, End = (Coordinate)end }, score);
          }
       }
 
@@ -64,7 +76,7 @@ namespace Stratego.AI
          }
          catch (NoMoveLeftException)
          {
-            return double.PositiveInfinity;
+            return double.NegativeInfinity;
          }
       }
 

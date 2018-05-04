@@ -60,13 +60,13 @@ namespace Stratego.Common
       /// <param name="y">Position en Y de la coordonnée comme retournée par <see cref="Y"/>.</param>
       public static Coordinate? Create(int x, int y)
       {
-         try
-         {
-            return new Coordinate(x, y);
-         }
-         catch (ArgumentException)
+         if (x < Min.X || x > Max.X || y < Min.Y || y > Max.Y)
          {
             return null;
+         }
+         else
+         {
+            return new Coordinate(x, y, true);
          }
       }
 

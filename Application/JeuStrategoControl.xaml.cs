@@ -425,7 +425,7 @@ namespace Stratego
          }
          else
          {
-            reponse = new ReponseDeplacement { DeplacementFait = true };
+            reponse = new ReponseDeplacement { DeplacementFait = false };
          }
 
          return reponse;

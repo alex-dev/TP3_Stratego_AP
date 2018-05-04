@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Stratego.Common;
 using Stratego.Common.Pieces;
 using Stratego.Common.GameLogic;
@@ -36,10 +37,11 @@ namespace Stratego
       /// <param name="attaquant">La <see cref="Piece"/> attaquante.</param>
       /// <returns>Toutes les pièces <see cref="Piece"/> éliminées.</returns>
       /// <exception cref="GameException">Lancée si l'attaquant n'implémente pas <see cref="IOffensivePiece"/> et tente d'attaquer une <see cref="CaseJeu"/> occupée.</exception>
-      public List<Piece> ResoudreAttaque(Piece attaquant)
+      public Tuple<List<Piece>, List<Piece>, AttackResult> ResoudreAttaque(Piece attaquant)
       {
          var removed = new List<Piece> { };
          var alive = new List<Piece> { };
+         AttackResult? result = null;
 
          if (!(attaquant is IOffensivePiece attaquant_))
          {
@@ -50,16 +52,19 @@ namespace Stratego
             switch (attaquant_.ResolveAttack(Occupant))
             {
                case AttackResult.Win:
+                  result = AttackResult.Win;
                   removed.Add(Occupant);
                   alive.Add(attaquant);
                   Occupant = attaquant;
                   break;
                case AttackResult.Equal:
+                  result = AttackResult.Equal;
                   removed.Add(Occupant);
                   removed.Add(attaquant);
                   Occupant = null;
                   break;
                case AttackResult.Lost:
+                  result = AttackResult.Lost;
                   alive.Add(Occupant);
                   removed.Add(attaquant);
                   break;
@@ -71,7 +76,7 @@ namespace Stratego
             piece.Position = null;
          }
 
-         return removed;
+         return Tuple.Create(removed, alive, (AttackResult)result);
       }
 
       #endregion
