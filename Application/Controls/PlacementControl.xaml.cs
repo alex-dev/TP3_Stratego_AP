@@ -99,6 +99,7 @@ namespace Stratego
             Available.Where(p => p.Name == old.ToLongString()).Single().Push(old);
             grdPlace.Children.Remove(GrillePieces[coord.X][coord.Y]);
             GrillePieces[coord.X][coord.Y] = null;
+            Player.Pieces.Remove(coord);
          }
 
          // Ajoute une pièce de la sélection.

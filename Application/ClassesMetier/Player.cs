@@ -28,6 +28,19 @@ namespace Stratego
          }
       }
 
+      public void PieceMoved(object sender, PieceMovedEventArgs e)
+      {
+         if (e.Shown is PiecesShownEventArgs)
+         {
+            foreach (var piece in from piece in Pieces
+                                  where e.Shown.Removed.Contains(piece.Value)
+                                  select piece)
+            {
+               Pieces.Remove(piece);
+            }
+         }
+      }
+
       #region IPlayer
 
       public event EventHandler<ForfeitEventArgs> Forfeit;

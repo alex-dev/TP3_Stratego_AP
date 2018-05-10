@@ -50,6 +50,7 @@ namespace Stratego
 
          Logic.SetUpPlayers(new IPlayer[] { AI, Player });
          Logic.GameEnd += (sender, e) => Dispatcher.Invoke(() => ShowLost(e.Color));
+         Logic.PieceMoved += Player.PieceMoved;
          Logic.PieceMoved += (sender, e) =>
          {
             if (!(e.Shown is null))
