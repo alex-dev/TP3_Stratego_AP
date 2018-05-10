@@ -12,6 +12,12 @@
          return "D";
       }
 
+      /// <inheritdoc />
+      public override string ToLongString()
+      {
+         return "Drapeau";
+      }
+
       #endregion
    }
 }

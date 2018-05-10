@@ -16,6 +16,7 @@ namespace Stratego.Common.GameLogic.Events
          Start = start;
          End = end;
          Player = player;
+         Shown = shown;
       }
    }
 }

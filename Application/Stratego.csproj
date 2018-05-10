@@ -34,23 +34,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MoreLinq, Version=2.10.21623.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
-      <HintPath>..\packages\morelinq.2.10.0\lib\net40\MoreLinq.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.ValueTuple">
-      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -66,11 +58,16 @@
     <Compile Include="ClassesMetier\CaseJeu.cs" />
     <Compile Include="ClassesMetier\GameLogic.cs" />
     <Compile Include="ClassesMetier\GrilleJeu.cs" />
-    <Page Include="JeuStrategoControl.xaml">
+    <Compile Include="Converters\ColorToBooleanConverter.cs" />
+    <Page Include="Controls\JeuStrategoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Controls\PlacementControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StrategoWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -78,11 +75,17 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="JeuStrategoControl.xaml.cs">
+    <Compile Include="ClassesMetier\PieceCollectionItem.cs" />
+    <Compile Include="ClassesMetier\Player.cs" />
+    <Compile Include="Controls\GridUserControl.cs" />
+    <Compile Include="Controls\JeuStrategoControl.xaml.cs">
       <DependentUpon>JeuStrategoControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="Controls\PlacementControl.xaml.cs">
+      <DependentUpon>PlacementControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StrategoWindow.xaml.cs">
+      <DependentUpon>StrategoWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

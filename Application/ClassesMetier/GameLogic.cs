@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Stratego.AI;
 using Stratego.Common;
 using Stratego.Common.GameLogic;
 using Stratego.Common.GameLogic.Events;
@@ -23,6 +25,15 @@ namespace Stratego
          GrillePartie = grille;
       }
 
+      /// <summary>Souscrit au joueurs pour savoir quand ils déclareront forfait.</summary>
+      public void SetUpPlayers(IEnumerable<IPlayer> players)
+      {
+         foreach (var player in players)
+         {
+            player.Forfeit += (sender, e) => GameEnd.Invoke(this, new GameEndEventArgs(e.Color)); 
+         }
+      }
+
       /// <inheritdoc />
       public Piece.Color TourJeu
       {
@@ -37,9 +48,9 @@ namespace Stratego
       /// <inheritdoc />
       public ReponseDeplacement ExecuterCoup(Coordinate caseDepart, Coordinate caseCible)
       {
-         ReponseDeplacement reponse;
+         var reponse = GrillePartie.ResoudreDeplacement(caseDepart, caseCible);
 
-         if (caseCible != caseDepart && (reponse = GrillePartie.ResoudreDeplacement(caseDepart, caseCible)))
+         if (reponse)
          {
             var shown = reponse.Result is null ? null : new PiecesShownEventArgs(
                reponse.PiecesEliminees, reponse.PieceSurvivante, (AttackResult)reponse.Result, TourJeu);
@@ -54,13 +65,6 @@ namespace Stratego
             {
                GameEnd.Invoke(this, new GameEndEventArgs(TourJeu));
             }
-         }
-         else
-         {
-            reponse = new ReponseDeplacement
-            {
-               DeplacementFait = false
-            };
          }
 
          return reponse;

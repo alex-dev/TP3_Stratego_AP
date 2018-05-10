@@ -76,19 +76,22 @@ namespace Stratego.AI
          }
          else
          {
-            OpponentPieces[e.End]
-               .UpdatePiece(e.Shown.Removed.Where(p => !p.IsColor(Color)).Single().GetType());
-
             switch (e.Shown.Result)
             {
                case AttackResult.Win:
+                  OpponentPieces[e.End].UpdatePiece(
+                     e.Shown.Removed.Where(p => !p.IsColor(Color)).Single().GetType());
                   AIPieces[e.End] = AIPieces[e.Start];
                   OpponentPieces.Remove(e.End);
                   break;
                case AttackResult.Equal:
+                  OpponentPieces[e.End].UpdatePiece(
+                     e.Shown.Removed.Where(p => !p.IsColor(Color)).Single().GetType());
                   OpponentPieces.Remove(e.End);
                   break;
                case AttackResult.Lost:
+                  OpponentPieces[e.End].UpdatePiece(
+                     e.Shown.Surviving.Where(p => !p.IsColor(Color)).Single().GetType());
                   break;
             }
          }
@@ -113,19 +116,22 @@ namespace Stratego.AI
          }
          else
          {
-            OpponentPieces[e.Start]
-               .UpdatePiece(e.Shown.Removed.Where(p => !p.IsColor(Color)).Single().GetType());
-
             switch (e.Shown.Result)
             {
                case AttackResult.Win:
+                  OpponentPieces[e.Start].UpdatePiece(
+                     e.Shown.Surviving.Where(p => !p.IsColor(Color)).Single().GetType());
                   OpponentPieces[e.End] = OpponentPieces[e.Start];
                   AIPieces.Remove(e.End);
                   break;
                case AttackResult.Equal:
+                  OpponentPieces[e.Start].UpdatePiece(
+                     e.Shown.Removed.Where(p => !p.IsColor(Color)).Single().GetType());
                   AIPieces.Remove(e.End);
                   break;
                case AttackResult.Lost:
+                  OpponentPieces[e.Start].UpdatePiece(
+                     e.Shown.Removed.Where(p => !p.IsColor(Color)).Single().GetType());
                   break;
             }
          }

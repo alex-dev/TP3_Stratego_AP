@@ -7,5 +7,11 @@
 
       /// <inheritdoc />
       public Capitaine(Color couleurPiece) : base(couleurPiece) { }
+
+      /// <inheritdoc />
+      public override string ToLongString()
+      {
+         return "Capitaine";
+      }
    }
 }

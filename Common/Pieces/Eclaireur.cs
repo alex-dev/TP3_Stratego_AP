@@ -128,5 +128,11 @@ namespace Stratego.Common.Pieces
       }
 
       #endregion
+
+      /// <inheritdoc />
+      public override string ToLongString()
+      {
+         return "Éclaireur";
+      }
    }
 }

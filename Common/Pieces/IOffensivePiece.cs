@@ -9,7 +9,8 @@
       ///   <see cref="AttackResult.Win"/> si <paramref name="defender"/> est plus faible.
       ///   <see cref="AttackResult.Lost"/> si <paramref name="defender"/> est plus fort.
       ///   <see cref="AttackResult.Equal"/> si <paramref name="defender"/> est aussi fort.
+      ///   <see cref="null"/> si <paramref name="defender"/> est <see cref="null"/>.
       /// </returns>
-      AttackResult ResolveAttack(Piece defender);
+      AttackResult? ResolveAttack(Piece defender);
    }
 }

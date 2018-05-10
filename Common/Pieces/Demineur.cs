@@ -11,11 +11,17 @@
       #region IOffensivePiece
 
       /// <inheritdoc />
-      public override AttackResult ResolveAttack(Piece defender)
+      public override AttackResult? ResolveAttack(Piece defender)
       {
          return defender is Bombe ? AttackResult.Win : ResolveAttack_(defender);
       }
 
       #endregion
+
+      /// <inheritdoc />
+      public override string ToLongString()
+      {
+         return "Démineur";
+      }
    }
 }

@@ -25,7 +25,7 @@ namespace Stratego.AI
             { typeof(Demineur), 5 },
             { typeof(Eclaireur), 8 },
             { typeof(Bombe), 6 },
-            { typeof(Drapeau), 1 },
+            { typeof(Drapeau), 1 }
          };
       }
 
@@ -47,6 +47,12 @@ namespace Stratego.AI
          }
 
          Piece = piece;
+
+         if (typeof(IMobilePiece).IsAssignableFrom(piece))
+         {
+            IsMobile = true;
+         }
+
          UpdateProbabilities(piece);
       }
 
@@ -60,7 +66,7 @@ namespace Stratego.AI
          return Piece == value
             || (Probabilities[value] > 0
                && (!IsMobile
-                  || (value.IsSubclassOf(typeof(IMobilePiece))
+                  || (typeof(IMobilePiece).IsAssignableFrom(value)
                      && IsMobile)));
       }
    }

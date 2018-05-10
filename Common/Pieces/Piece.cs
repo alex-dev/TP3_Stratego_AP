@@ -13,7 +13,7 @@
       #region Attributes
 
       /// <summary>La couleur de la <see cref="Piece"/>.</summary>
-      public Color Couleur { get; private set; }
+      public Color Couleur { get; set; }
 
       #endregion
 
@@ -42,6 +42,8 @@
 
       /// <summary>Garantie que toutes les piècces auront un libellé.</summary>
       public abstract override string ToString();
+
+      public abstract string ToLongString();
 
       #endregion
    }

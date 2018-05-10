@@ -7,5 +7,11 @@
 
       /// <inheritdoc />
       public Colonel(Color couleurPiece) : base(couleurPiece) { }
+
+      /// <inheritdoc />
+      public override string ToLongString()
+      {
+         return "Colonel";
+      }
    }
 }

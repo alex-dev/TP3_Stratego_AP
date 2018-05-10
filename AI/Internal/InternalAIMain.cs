@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime;
 using System.Threading.Tasks;
-using MoreLinq;
 using Stratego.Common;
 using Stratego.Common.Pieces;
 
@@ -41,7 +40,7 @@ namespace Stratego.AI
             {
                double score_ = EvaluateMove(move.Item2, move.Item3);
 
-               if (score < score_)
+               if (score < score_ || score == double.NegativeInfinity)
                {
                   score = score_;
                   start = move.Item2;
@@ -51,6 +50,11 @@ namespace Stratego.AI
                if (Alpha < score_)
                {
                   Alpha = score_;
+               }
+
+               if (Alpha >= Beta)
+               {
+                  break;
                }
             }
 

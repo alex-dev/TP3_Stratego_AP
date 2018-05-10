@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Stratego.Common;
 using Stratego.Common.GameLogic;
@@ -14,6 +15,53 @@ namespace Stratego
       /// La taille de la grille de jeu. Assume une grille de jeu carrée (X par X).
       /// </summary>
       public const int TAILLE_GRILLE_JEU = 10;
+
+      public static Dictionary<Type, uint> Pieces { get; private set; }
+
+      static GrilleJeu()
+      {
+         Pieces = new Dictionary<Type, uint>
+         {
+            { typeof(Espion), 1 },
+            { typeof(Marechal), 1 },
+            { typeof(General), 1 },
+            { typeof(Colonel), 2 },
+            { typeof(Commandant), 3 },
+            { typeof(Capitaine), 4 },
+            { typeof(Lieutenant), 4 },
+            { typeof(Sergent), 4 },
+            { typeof(Demineur), 5 },
+            { typeof(Eclaireur), 8 },
+            { typeof(Bombe), 6 },
+            { typeof(Drapeau), 1 }
+         };
+      }
+
+      /// <summary>Détermine si <paramref name="pieces"/> sont un positionnement valide.</summary>
+      /// <param name="pieces">Les positionnements à valider.</param>
+      /// <param name="couleurJoueur">La <see cref="Piece.Color"/> du joueur.</param>
+      public static bool IsValidSetUp(IDictionary<Coordinate, Piece> pieces, Piece.Color couleurJoueur)
+      {
+         // valide la couleur
+         bool color = (from piece in pieces.Values
+                       select piece.Couleur).All(c => c == couleurJoueur);
+
+         // Valide les coordonnées
+         bool coord = (from data in (from coordinate in pieces.Keys
+                                     where coordinate.Y < 4 || coordinate.Y > 5
+                                     group coordinate by coordinate.Y < 4)
+                       where data.Count() == pieces.Count
+                       select data).Any();
+
+         // Valide les pièces
+         var pieces_ = from piece in pieces.Values
+                        group piece by piece.GetType();
+
+         bool count = pieces_.Count() == Pieces.Count();
+         bool group = pieces_.All(data => Pieces[data.Key] == data.Count());
+
+         return color && coord && count && group;
+      }
 
       #endregion
 
@@ -139,21 +187,29 @@ namespace Stratego
          return p.IsLake();
       }
 
-      public bool PositionnerPieces(IDictionary<Coordinate, Piece> pieces, Piece.Color couleurJoueur)
+      /// <summary>Retrouve la pièce en <paramref name="p"/>.</summary>
+      public Piece ObtenirPiece(Coordinate p)
       {
-         bool positionnementApplique = false;
+         return GrilleCases[p.X][p.Y].Occupant;
+      }
 
-         if (!PositionnementFait(couleurJoueur))
+      /// <summary>Positionne les pièces du joueaur.</summary>
+      /// <param name="pieces">Les pièces à positionner.</param>
+      /// <param name="couleurJoueur">La coupleur du joueur.</param>
+      /// <exception cref="ArgumentException">Lancé si le joueur a déjà positionné ses pièces ou qu'elles sont invalides.</exception>
+      public void PositionnerPieces(IDictionary<Coordinate, Piece> pieces, Piece.Color couleurJoueur)
+      {
+         if (PositionnementFait(couleurJoueur) || !IsValidSetUp(pieces, couleurJoueur))
          {
-            positionnementApplique = true;
-
+            throw new ArgumentException();
+         }
+         else
+         {
             foreach (var piece in pieces)
             {
                GrilleCases[piece.Key.X][piece.Key.Y].Occupant = piece.Value;
             }
          }
-
-         return positionnementApplique;
       }
 
       private bool PositionnementFait(Piece.Color couleurJoueur)
@@ -178,18 +234,6 @@ namespace Stratego
          return pieceTrouvee;
       }
 
-      #region Weird shit!
-      public Piece ObtenirPiece(Coordinate p)
-      {
-         return GrilleCases[p.X][p.Y].Occupant;
-      }
-
-      public Piece.Color ObtenirCouleurPiece(Coordinate p)
-      {
-         return GrilleCases[p.X][p.Y].Occupant.Couleur;
-      }
-      #endregion
-
       #endregion
 
       #region IGameGrid
@@ -204,8 +248,8 @@ namespace Stratego
             var caseDepart = GrilleCases[CoordinateDepart.X][CoordinateDepart.Y];
             var caseCible = GrilleCases[CoordinateCible.X][CoordinateCible.Y];
             var data = caseCible.ResoudreAttaque(caseDepart.Occupant);
+            caseDepart.Occupant = null;
 
-            // Faire le déplacement.
             reponse = new ReponseDeplacement
             {
                DeplacementFait = true,
@@ -213,8 +257,6 @@ namespace Stratego
                PieceSurvivante = data.Item2.OfType<Piece>().ToList(),
                Result = data.Item3
             };
-
-            caseDepart.Occupant = null;
          }
          else
          {
@@ -227,7 +269,8 @@ namespace Stratego
       /// <inheritdoc />
       public bool EstDeplacementPermis(Coordinate CoordinateDepart, Coordinate CoordinateCible)
       {
-         return GrilleCases[CoordinateDepart.X][CoordinateDepart.Y].EstDeplacementLegal(GrilleCases[CoordinateCible.X][CoordinateCible.Y]);
+         return CoordinateDepart != CoordinateCible &&
+            GrilleCases[CoordinateDepart.X][CoordinateDepart.Y].EstDeplacementLegal(GrilleCases[CoordinateCible.X][CoordinateCible.Y]);
       }
 
       /// <inheritdoc />

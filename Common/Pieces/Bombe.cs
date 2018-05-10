@@ -12,6 +12,12 @@
          return "B";
       }
 
+      /// <inheritdoc />
+      public override string ToLongString()
+      {
+         return "Bombe";
+      }
+
       #endregion
    }
 }

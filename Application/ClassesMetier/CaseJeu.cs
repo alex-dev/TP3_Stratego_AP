@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Stratego.Common;
 using Stratego.Common.Pieces;
 using Stratego.Common.GameLogic;
@@ -37,7 +38,7 @@ namespace Stratego
       /// <param name="attaquant">La <see cref="Piece"/> attaquante.</param>
       /// <returns>Toutes les pièces <see cref="Piece"/> éliminées.</returns>
       /// <exception cref="GameException">Lancée si l'attaquant n'implémente pas <see cref="IOffensivePiece"/> et tente d'attaquer une <see cref="CaseJeu"/> occupée.</exception>
-      public Tuple<List<Piece>, List<Piece>, AttackResult> ResoudreAttaque(Piece attaquant)
+      public Tuple<List<Piece>, List<Piece>, AttackResult?> ResoudreAttaque(Piece attaquant)
       {
          var removed = new List<Piece> { };
          var alive = new List<Piece> { };
@@ -68,15 +69,21 @@ namespace Stratego
                   alive.Add(Occupant);
                   removed.Add(attaquant);
                   break;
+               default:
+                  result = null;
+                  alive.Add(attaquant);
+                  Occupant = attaquant;
+                  break;
             }
+
          }
 
-         foreach (IMobilePiece piece in removed.FindAll(piece => piece is IMobilePiece))
+         foreach (var piece in removed.OfType<IMobilePiece>())
          {
             piece.Position = null;
          }
 
-         return Tuple.Create(removed, alive, (AttackResult)result);
+         return Tuple.Create(removed, alive, result);
       }
 
       #endregion

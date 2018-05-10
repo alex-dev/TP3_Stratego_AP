@@ -37,7 +37,7 @@ namespace Stratego.AI
             {
                double score_ = EvaluateMove(move.Item2, move.Item3);
 
-               if (score > score_)
+               if (score > score_ || score == double.PositiveInfinity)
                {
                   score = score_;
                   start = move.Item2;
@@ -49,7 +49,7 @@ namespace Stratego.AI
                   Beta = score_;
                }
 
-               if (Alpha > Beta)
+               if (Alpha >= Beta)
                {
                   break;
                }

@@ -85,10 +85,12 @@ namespace Stratego.AI
 
       private double EvaluateFlag()
       {
-         var flag = AI.Where(p => p.Value is Drapeau).Single();
-
-         return AI.Where(p => DiffPositions(flag.Key, p.Key) <= 2).Sum(p => FlagVulnerabilitiesValue[p.Value.GetType()])
-            + Opponent.Where(p => DiffPositions(flag.Key, p.Key) <= 2).Count();
+         var flag = AI.Where(p => p.Value is Drapeau).ToList();
+         
+         return flag.Count == 1
+            ? AI.Where(p => DiffPositions(flag.First().Key, p.Key) <= 2).Sum(p => FlagVulnerabilitiesValue[p.Value.GetType()])
+               + Opponent.Where(p => DiffPositions(flag.First().Key, p.Key) <= 2).Count()
+            : double.NegativeInfinity;
       }
 
       private Evaluation EvaluateBoard()

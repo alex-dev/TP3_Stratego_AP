@@ -217,7 +217,7 @@ namespace Stratego.AI
          {
             return new Dictionary<Coordinate, Piece>
             {
-               { new Coordinate(Flipped ? 1 : 8, 1), new Marechal(Color) },
+               { new Coordinate(Flipped ? 9 : 1, 1), new Marechal(Color) },
                { new Coordinate(Flipped ? 0 : 9, 2), new General(Color) },
                { new Coordinate(Flipped ? 1 : 8, 2), new Colonel(Color) },
                { new Coordinate(Flipped ? 5 : 4, 2), new Colonel(Color) },
@@ -239,13 +239,13 @@ namespace Stratego.AI
             return new Dictionary<Coordinate, Piece>
             {
                { new Coordinate(Flipped ? 2 : 7, 3), new Marechal(Color) },
-               { new Coordinate(Flipped ? 1 : 8, 3), new General(Color) },
+               { new Coordinate(Flipped ? 8 : 1, 3), new General(Color) },
                { new Coordinate(Flipped ? 0 : 9, 2), new Colonel(Color) },
                { new Coordinate(Flipped ? 4 : 5, 1), new Colonel(Color) },
                { new Coordinate(Flipped ? 1 : 8, 1), new Commandant(Color) },
                { new Coordinate(Flipped ? 5 : 4, 1), new Commandant(Color) },
                { new Coordinate(Flipped ? 7 : 2, 1), new Commandant(Color) },
-               { new Coordinate(Flipped ? 1 : 8, 2), new Espion(Color) },
+               { new Coordinate(Flipped ? 8 : 1, 2), new Espion(Color) },
                { new Coordinate(Flipped ? 0 : 9, 0), new Drapeau(Color) },
                { new Coordinate(Flipped ? 0 : 9, 1), new Bombe(Color) },
                { new Coordinate(Flipped ? 1 : 8, 0), new Bombe(Color) }
@@ -259,7 +259,7 @@ namespace Stratego.AI
          {
             return new Dictionary<Coordinate, Piece>
             {
-               { new Coordinate(Flipped ? 2 : 7, 3), new Marechal(Color) },
+               { new Coordinate(Flipped ? 7 : 2, 3), new Marechal(Color) },
                { new Coordinate(Flipped ? 1 : 8, 3), new General(Color) },
                { new Coordinate(Flipped ? 0 : 9, 2), new Colonel(Color) },
                { new Coordinate(Flipped ? 4 : 5, 1), new Colonel(Color) },

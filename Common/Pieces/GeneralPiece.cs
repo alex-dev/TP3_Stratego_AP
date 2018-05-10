@@ -31,9 +31,9 @@ namespace Stratego.Common.Pieces
       }
 
       /// <summary>Principale méthode pour résoudre les attaques.</summary>
-      protected AttackResult ResolveAttack_(Piece defender)
+      protected AttackResult? ResolveAttack_(Piece defender)
       {
-         var result = AttackResult.Win;
+         AttackResult? result = null;
 
          if (defender is GeneralPiece defender_)
          {
@@ -45,6 +45,14 @@ namespace Stratego.Common.Pieces
             {
                result = AttackResult.Equal;
             }
+            else
+            {
+               result = AttackResult.Win;
+            }
+         }
+         else if (defender is Piece)
+         {
+            result = AttackResult.Win;
          }
 
          return result;
@@ -55,7 +63,7 @@ namespace Stratego.Common.Pieces
       #region IOffensivePiece
 
       /// <inheritdoc />
-      public virtual AttackResult ResolveAttack(Piece defender)
+      public virtual AttackResult? ResolveAttack(Piece defender)
       {
          return defender is Bombe ? AttackResult.Lost : ResolveAttack_(defender);
       }
